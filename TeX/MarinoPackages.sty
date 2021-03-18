@@ -1,0 +1,91 @@
+% Usar XeLaTeX ou LuaLaTeX
+
+% \documentclass[a4paper, 12pt]{report}
+% \usepackage{MarinoPackages}
+
+% \begin{document}
+%     \toc
+%     \justify
+
+%     \chapter*{Introdução}
+%     \addcontentsline{toc}{chapter}{Introdução}
+
+%     \printbib
+% \end{document}
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{MarinoPackages}[2021/03/18 My style with all packages i use]
+
+\RequirePackage[T1]{fontenc}
+% \RequirePackage[utf8]{inputenc}   % no need to use if using XeLaTeX or LuaLaTeX
+\RequirePackage[document]{ragged2e}
+\RequirePackage[brazil, brazilian]{babel}
+\RequirePackage{fontspec, setspace, lmodern, indentfirst, anyfontsize}
+\RequirePackage[backend=biber, style=abnt, bibstyle=numeric, citestyle=numeric-comp]{biblatex}
+\RequirePackage[a4paper, tmargin=3cm, lmargin=3cm, rmargin=2cm, bmargin=2cm, head=15pt, foot=10pt, footskip=15pt]{geometry}
+\RequirePackage{graphicx, xcolor, comment, multirow, multicol, indentfirst, float, tikz, pgfplots, listings, fancyhdr, colortbl}
+\RequirePackage{amsmath, amsthm, amsfonts, amssymb, dsfont, blindtext, textcomp, gensymb, empheq, booktabs, caption, subcaption}
+\RequirePackage{imakeidx, hyperref, etoolbox, lipsum, extramarks, csquotes, quotes, xpatch}
+\RequirePackage[nottoc, notlof, notlot, numbib]{tocbibind}
+\RequirePackage[intoc, portuguese]{nomencl}
+\RequirePackage[shortlabels]{enumitem}
+\RequirePackage[normalem]{ulem}
+
+    \DeclareCaptionFont{MarinoFont}{\fontsize{10pt}{\baselineskip}\selectfont}
+    \DeclareCaptionStyle{MarinoCaptionStyle}{
+        format=plain,
+        indention=0cm,
+        labelformat=simple,
+        labelsep=period,
+        textformat=simple,
+        justification=centering,
+        singlelinecheck=true,
+        font={singlespacing, MarinoFont},
+        skip=10pt,
+        figureposition=bottom,
+        tableposition=top,
+        list=false,
+    }
+    \captionsetup{style=MarinoCaptionStyle}
+
+    \makeindex
+    \makenomenclature
+
+    \hypersetup{colorlinks, citecolor= blue, linkcolor= blue, urlcolor= blue}
+
+    \renewcommand*{\thefootnote}{[\arabic{footnote}]}
+
+    \fancyhf{}
+    \pagestyle{fancyplain}
+    \renewcommand{\headrulewidth}{1pt}
+    %\renewcommand{\headrule}{\onecolumn\vspace{-2\baselineskip}\hrulefill\twocolumn}   %   needed when using two-columns
+
+    \usetikzlibrary{decorations.markings}
+    \pgfplotsset{compat=1.16, compat/show suggested version=true}
+    \usepgfplotslibrary{external}
+
+    \addbibresource{ref.bib}
+    \newcommand{\printbib}{ 
+        \singlespacing
+        \fontsize{10pt}{\baselineskip}
+        \selectfont
+        \nocite{*}
+        \printbibliography[heading=bibintoc]
+    }
+
+    \newcommand{\printncl}{
+        \include{nomenclature}
+        \printnomenclature
+    }
+
+    \newcommand{\e}[1]{
+        \times10^{#1}
+    }
+
+    \newcommand{\toc}{
+        \tableofcontents
+    }
+
+    \onehalfspacing
+    \setmainfont{Times New Roman}
+    \setlength{\parindent}{1.25cm}
