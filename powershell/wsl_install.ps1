@@ -6,7 +6,8 @@
         None;
 
     .Notes
-        This script run following the instructions given here: https://docs.microsoft.com/en-us/windows/wsl/install-win10
+        This script run following the instructions given here: https://docs.microsoft.com/en-us/windows/wsl/install-win10;
+        >>>MAKE SURE YOURE IN THE LATEST WINDOWS VERSION<<<
 
     .Notes
             Probabily will be needed to change some execution policies in the console where te script will be running,
