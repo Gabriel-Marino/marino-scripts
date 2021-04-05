@@ -1,3 +1,16 @@
+<#
+    .Description
+        Enable, Download and Install Windows Subsystem for Linux (WSL);
+
+    .Paramaters
+        None;
+
+    .Notes
+        Probabily will be needed to change some execution policies in the console where te script will be running, so i recommend using the following command on the terminal before executing the script
+            Set-ExecutionPolicy -Confirm -ExecutionPolicy Bypass -Force -Scope CurrentUser
+
+#>
+
 # Directory path where Batch is being executed;
 $dirPATH = Get-Location
 $logfile = "$dirPATH\log.txt"
