@@ -14,49 +14,88 @@
 % \end{document}
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{MarinoPackages}[2021/03/18 My style with all packages i use]
+\ProvidesPackage{MarinoPackages}[2021/03/26 My style with all packages i use]
+
+\RequirePackage[enable-debug]{expl3}    %   Create compatibility between LaTeX2e and LaTeX3
 
 \RequirePackage[T1]{fontenc}
 % \RequirePackage[utf8]{inputenc}   % no need to use if using XeLaTeX or LuaLaTeX
 \RequirePackage[document]{ragged2e}
 \RequirePackage[brazil, brazilian]{babel}
 \RequirePackage{fontspec, setspace, lmodern, indentfirst, anyfontsize}
+\RequirePackage[debug=true, strict=true, portuguese=brazilian, style=brazilian]{csquotes}
 \RequirePackage[backend=biber, style=abnt, bibstyle=numeric, citestyle=numeric-comp]{biblatex}
-\RequirePackage[a4paper, tmargin=3cm, lmargin=3cm, rmargin=2cm, bmargin=2cm, head=15pt, foot=10pt, footskip=15pt]{geometry}
+\RequirePackage[a4paper, tmargin=3cm, lmargin=3cm, rmargin=2cm, bmargin=2cm, head=65pt, foot=10pt, footskip=15pt]{geometry}
 \RequirePackage{graphicx, xcolor, comment, multirow, multicol, indentfirst, float, tikz, pgfplots, listings, fancyhdr, colortbl}
 \RequirePackage{amsmath, amsthm, amsfonts, amssymb, dsfont, blindtext, textcomp, gensymb, empheq, booktabs, caption, subcaption}
-\RequirePackage{imakeidx, hyperref, etoolbox, lipsum, extramarks, csquotes, quotes, xpatch}
+\RequirePackage{imakeidx, hyperref, etoolbox, lipsum, extramarks, xpatch, environ}
 \RequirePackage[nottoc, notlof, notlot, numbib]{tocbibind}
+\RequirePackage[toc, titletoc, header]{appendix}
 \RequirePackage[intoc, portuguese]{nomencl}
 \RequirePackage[shortlabels]{enumitem}
 \RequirePackage[normalem]{ulem}
-
-    \DeclareCaptionFont{MarinoFont}{\fontsize{10pt}{\baselineskip}\selectfont}
-    \DeclareCaptionStyle{MarinoCaptionStyle}{
-        format=plain,
-        indention=0cm,
-        labelformat=simple,
-        labelsep=period,
-        textformat=simple,
-        justification=centering,
-        singlelinecheck=true,
-        font={singlespacing, MarinoFont},
-        skip=10pt,
-        figureposition=bottom,
-        tableposition=top,
-        list=false,
-    }
-    \captionsetup{style=MarinoCaptionStyle}
 
     \makeindex
     \makenomenclature
 
     \hypersetup{colorlinks, citecolor= blue, linkcolor= blue, urlcolor= blue}
 
+    % \DeclareCaptionJustification{MarinoJustification}{\ifnumequal{\the\prevgraf}{1}{\centering}{\justifying}} %Because some reason singlelinecheck is not working for me, then i tried to find a solution and not worked too
+    \DeclareCaptionFont{MarinoFont}{\fontsize{10pt}{\baselineskip}\selectfont}
+    \DeclareCaptionStyle{MarinoCaptionStyle}[justification=centering]{
+        format=plain,
+        indention=0cm,
+        labelformat=simple,
+        labelsep=period,
+        textformat=simple,
+        justification=justified,
+        font={singlespacing, MarinoFont},
+        width=\textwidth,
+        skip=\baselineskip,
+        position=bottom,
+        list=false,
+        hypcap=false,
+    }
+    \DeclareCaptionStyle{MarinoSubcaptionStyle}{
+        labelsep=none,
+        labelformat=simple,
+        textformat=empty,
+        position=top,
+        margin=0pt,
+        singlelinecheck=false,
+        font={singlespacing, MarinoFont},
+        width=0.75\textwidth,
+        skip=-2pt,
+        list=false,
+        hypcap=false,
+    }
+    \DeclareCaptionStyle{MarinoTableStyle}[justification=centering]{
+        format=plain,
+        indention=0cm,
+        labelformat=simple,
+        labelsep=period,
+        textformat=simple,
+        justification=justified,
+        font={singlespacing, MarinoFont},
+        width=\textwidth,
+        skip=\baselineskip,
+        position=top,
+        list=false,
+        hypcap=false,
+    }
+
+    \captionsetup*[figure]{style=MarinoCaptionStyle}
+    \captionsetup*[sub]{style=MarinoSubcaptionStyle}
+    \captionsetup*[table]{style=MarinoTableStyle}
+
+    \renewcommand*{\thesubfigure}{\Alph{subfigure}}
+
     \renewcommand*{\thefootnote}{[\arabic{footnote}]}
 
+    \renewcommand*{\appendixname}{Apêndices}
+
     \pagestyle{fancyplain}
-    \renewcommand{\headrulewidth}{1pt}
+    \renewcommand*{\headrulewidth}{1pt}
     %\renewcommand{\headrule}{\onecolumn\vspace{-2\baselineskip}\hrulefill\twocolumn}   %   needed when using two-columns
 
     \usetikzlibrary{decorations.markings}
@@ -66,24 +105,39 @@
     \addbibresource{ref.bib}
     \newcommand{\printbib}{ 
         \singlespacing
-        \fontsize{10pt}{\baselineskip}
-        \selectfont
-        \nocite{*}
+        \fontsize{10pt}{\baselineskip}\selectfont
+        % \nocite{*}
         \printbibliography[heading=bibintoc]
     }
 
-    \newcommand{\printncl}{
+    \newcommand*{\printncl}{
         \include{nomenclature}
         \printnomenclature
     }
 
-    \newcommand{\e}[1]{
+    \newcommand*{\e}[1]{
         \times10^{#1}
     }
 
-    \newcommand{\toc}{
+    \newcommand*{\toc}{
+        \pagenumbering{gobble}
         \tableofcontents
+        \pagenumbering{arabic}
     }
+
+    %   Author: https://tex.stackexchange.com/a/446901/217339, update by me utilizing appendix Package
+    %   Following lines use expl3, environ and etoolbox to create the appendix environment and print all of then at the end of the document
+    \ExplSyntaxOn
+        \seq_new:N \g_appendices_seq    % define a sequence for holding the appendices
+        \NewEnviron{Appendix}{\seq_gput_right:No \g_appendices_seq \BODY}
+        \newcommand\AddAppendices{      % regurgitate the appendices
+            \begin{appendices}
+                \seq_map_inline:Nn \g_appendices_seq {##1}
+            \end{appendices}
+        }
+    \ExplSyntaxOff
+    % automatically print the appendices at the end of the document
+    \AtEndDocument{\AddAppendices}
 
     \onehalfspacing
     \setmainfont{Times New Roman}
