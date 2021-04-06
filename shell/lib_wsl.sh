@@ -7,10 +7,10 @@ sudo dpkg --configure -a
 sudo apt-get install wget
 sudo apt-get install git
 
-wget -O - "https://www.dropbox.com/download?plat=lnx.x86_64" | tar xzf -
-cd .dropbox-dist
-~/.dropbox-dist/dropboxd
-sudo apt-get install nautilus-dropbox
+# wget -O - "https://www.dropbox.com/download?plat=lnx.x86_64" | tar xzf -
+# cd .dropbox-dist
+# ~/.dropbox-dist/dropboxd
+# sudo apt-get install nautilus-dropbox
 
 sudo apt-get install gcc
 sudo apt-get install gnuplot
