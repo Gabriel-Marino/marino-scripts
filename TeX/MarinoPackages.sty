@@ -1,33 +1,21 @@
-% Usar XeLaTeX ou LuaLaTeX
-
-% \documentclass[a4paper, 12pt]{report}
-% \usepackage{MarinoPackages}
-
-% \begin{document}
-%     \toc
-%     \justify
-
-%     \chapter*{Introdução}
-%     \addcontentsline{toc}{chapter}{Introdução}
-
-%     \printbib
-% \end{document}
+% Compiler needed: XeLaTeX
+% The following package is made using what i think is aesthetic and what i could understand about ABNT (Brazil) norm
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{MarinoPackages}[2021/03/26 My style with all packages i use]
+\ProvidesPackage{MarinoPackages}[2021/05/06 My style with all packages i use]
 
 \RequirePackage[enable-debug]{expl3}    %   Create compatibility between LaTeX2e and LaTeX3
 
 \RequirePackage[T1]{fontenc}
-% \RequirePackage[utf8]{inputenc}   % no need to use if using XeLaTeX or LuaLaTeX
+% \RequirePackage[utf8]{inputenc}       % no need to use if using XeLaTeX or LuaLaTeX
 \RequirePackage[document]{ragged2e}
 \RequirePackage[brazil, brazilian]{babel}
 \RequirePackage{fontspec, setspace, lmodern, indentfirst, anyfontsize}
 \RequirePackage[debug=true, strict=true, portuguese=brazilian, style=brazilian]{csquotes}
 \RequirePackage[backend=biber, style=abnt, bibstyle=numeric, citestyle=numeric-comp]{biblatex}
 \RequirePackage[a4paper, tmargin=3cm, lmargin=3cm, rmargin=2cm, bmargin=2cm, head=65pt, foot=10pt, footskip=15pt]{geometry}
-\RequirePackage{graphicx, xcolor, comment, multirow, multicol, indentfirst, float, tikz, pgfplots, listings, fancyhdr, colortbl}
-\RequirePackage{amsmath, amsthm, amsfonts, amssymb, dsfont, blindtext, textcomp, gensymb, empheq, booktabs, caption, subcaption}
+\RequirePackage{graphicx, xcolor, comment, multirow, multicol, indentfirst, float, tikz, pgfplots, listings, fancyhdr, colortbl, epigraph}
+\RequirePackage{mathtools, amsmath, amsthm, amsfonts, amssymb, dsfont, blindtext, textcomp, gensymb, empheq, booktabs, caption, subcaption}
 \RequirePackage{imakeidx, hyperref, etoolbox, lipsum, extramarks, xpatch, environ}
 \RequirePackage[nottoc, notlof, notlot, numbib]{tocbibind}
 \RequirePackage[toc, titletoc, header]{appendix}
@@ -40,7 +28,6 @@
 
     \hypersetup{colorlinks, citecolor= blue, linkcolor= blue, urlcolor= blue}
 
-    % \DeclareCaptionJustification{MarinoJustification}{\ifnumequal{\the\prevgraf}{1}{\centering}{\justifying}} %Because some reason singlelinecheck is not working for me, then i tried to find a solution and not worked too
     \DeclareCaptionFont{MarinoFont}{\fontsize{10pt}{\baselineskip}\selectfont}
     \DeclareCaptionStyle{MarinoCaptionStyle}[justification=centering]{
         format=plain,
@@ -94,20 +81,39 @@
 
     \renewcommand*{\appendixname}{Apêndices}
 
+    \renewcommand*{\thepart}{\Roman{part}}
+    \renewcommand*{\thechapter}{\roman{chapter}}
+    \renewcommand*{\thesection}{\thechapter.\arabic{section}}
+    \renewcommand*{\thesubsection}{\Alph{subsection}}
+
+    \renewcommand*{\textflush}{justify}
+    \renewcommand*{\afterepigraphskip}{\baselineskip}
+    \renewcommand*{\beforeepigraphskip}{\baselineskip}
+    \renewcommand*{\epigraphsize}{\singlespacing\fontsize{10pt}{\baselineskip}\selectfont}
+
     \pagestyle{fancyplain}
-    \renewcommand*{\headrulewidth}{1pt}
-    %\renewcommand{\headrule}{\onecolumn\vspace{-2\baselineskip}\hrulefill\twocolumn}   %   needed when using two-columns
+    \renewcommand*{\headrule}{
+        \makeatletter
+            \if@twocolumn
+                \onecolumn\vspace{-2\baselineskip}\hrulefill\twocolumn
+            \else
+                \makebox[\textwidth]{\rule{\headwidth}{\headrulewidth}}\vskip-\headrulewidth
+            \fi
+        \makeatother
+    }
 
     \usetikzlibrary{decorations.markings}
     \pgfplotsset{compat=1.16, compat/show suggested version=true}
     \usepgfplotslibrary{external}
 
-    \addbibresource{ref.bib}
     \newcommand{\printbib}{ 
         \singlespacing
         \fontsize{10pt}{\baselineskip}\selectfont
-        % \nocite{*}
         \printbibliography[heading=bibintoc]
+    }
+    \IfFileExists{ref.bib}{
+        \addbibresource{ref.bib}
+        \AtEndDocument{\printbib}
     }
 
     \newcommand*{\printncl}{
@@ -126,7 +132,7 @@
     }
 
     %   Author: https://tex.stackexchange.com/a/446901/217339, update by me utilizing appendix Package
-    %   Following lines use expl3, environ and etoolbox to create the appendix environment and print all of then at the end of the document
+    %   Following lines use expl3, environ and etoolbox to create the Appendix environment and print all of then at the end of the document
     \ExplSyntaxOn
         \seq_new:N \g_appendices_seq    % define a sequence for holding the appendices
         \NewEnviron{Appendix}{\seq_gput_right:No \g_appendices_seq \BODY}
