@@ -1,4 +1,7 @@
-# marino-scripts
+# scripts
+
+### out of date
+
 Scripts i made to use usually
 
 
