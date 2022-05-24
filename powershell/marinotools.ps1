@@ -55,7 +55,7 @@ function Download-Install {
         Out-file -Force -FilePath $logfile "Nothing went wrong!"
     } catch {
 #       Print in the terminal the quoted message;
-        Write-Output "$path\Something goes wrong! See Log.txt"
+        Write-Output "S$path\omething goes wrong! See Log.txt"
 #       Write in the Log.txt what went wrong;
         Out-File -Force -FilePath $logfile -InputObject $Error -Encoding utf8 -Width 128
     }
