@@ -1,6 +1,6 @@
 # scripts
 
-### out of date
+<!-- ### out of date -->
 
 Scripts i made to use usually
 
