@@ -1,8 +1,20 @@
 % Compiler needed: XeLaTeX
-% The following package is made using what i think is aesthetic and what i could understand about ABNT (Brazil) norm
+% the following commented lines (4-14) is a exemple of usage of the package and types recommended
+
+% \documentclass[a4paper, 12pt]{report}
+% \usepackage{MarinoPackages}
+
+% \begin{document}
+%     \toc
+%     \justifying
+
+%     \chapter*{Introdução}
+%     \addcontentsline{toc}{chapter}{Introdução}
+
+% \end{document}
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{MarinoPackages}[2021/05/06 My style with all packages i use]
+\ProvidesPackage{MarinoPackages}[2022/04/04 My style with all packages i use]
 
 \RequirePackage[enable-debug]{expl3}    %   Create compatibility between LaTeX2e and LaTeX3
 
@@ -10,12 +22,13 @@
 % \RequirePackage[utf8]{inputenc}       % no need to use if using XeLaTeX or LuaLaTeX
 \RequirePackage[document]{ragged2e}
 \RequirePackage[brazil, brazilian]{babel}
-\RequirePackage{fontspec, setspace, lmodern, indentfirst, anyfontsize}
+\RequirePackage{fontspec, setspace, lmodern, anyfontsize, indentfirst}
 \RequirePackage[debug=true, strict=true, portuguese=brazilian, style=brazilian]{csquotes}
 \RequirePackage[backend=biber, style=abnt, bibstyle=numeric, citestyle=numeric-comp]{biblatex}
 \RequirePackage[a4paper, tmargin=3cm, lmargin=3cm, rmargin=2cm, bmargin=2cm, head=65pt, foot=10pt, footskip=15pt]{geometry}
-\RequirePackage{graphicx, xcolor, comment, multirow, multicol, indentfirst, float, tikz, pgfplots, listings, fancyhdr, colortbl, epigraph}
-\RequirePackage{mathtools, amsmath, amsthm, amsfonts, amssymb, dsfont, blindtext, textcomp, gensymb, empheq, booktabs, caption, subcaption}
+\RequirePackage{graphicx, xcolor, comment, multirow, multicol, indentfirst, float, tikz, pgfplots, pgffor, listings, fancyhdr, colortbl, epigraph}
+\RequirePackage{mathtools, mathrsfs, amsmath, amsthm, amsfonts, dsfont, blindtext, textcomp, gensymb, empheq, booktabs, caption, subcaption, textcase, braket, titlesec}
+\RequirePackage[warnings-off={mathtools-colon,mathtools-overbracket}]{unicode-math}
 \RequirePackage{imakeidx, hyperref, etoolbox, lipsum, extramarks, xpatch, environ}
 \RequirePackage[nottoc, notlof, notlot, numbib]{tocbibind}
 \RequirePackage[toc, titletoc, header]{appendix}
@@ -43,19 +56,20 @@
         list=false,
         hypcap=false,
     }
-    \DeclareCaptionStyle{MarinoSubcaptionStyle}{
-        labelsep=none,
-        labelformat=simple,
-        textformat=empty,
-        position=top,
-        margin=0pt,
-        singlelinecheck=false,
-        font={singlespacing, MarinoFont},
-        width=0.75\textwidth,
-        skip=-2pt,
-        list=false,
-        hypcap=false,
-    }
+    % \DeclareCaptionStyle{MarinoSubcaptionStyle}[justification=raggedright]{
+    %     labelsep=none,
+    %     labelformat=simple,
+    %     textformat=empty,
+    %     position=top,
+    %     margin=0pt,
+    %     singlelinecheck=false,
+    %     justification=raggedright,
+    %     font={singlespacing, MarinoFont},
+    %     % width=0.75\textwidth,
+    %     % skip=-2pt,
+    %     list=false,
+    %     hypcap=false,
+    % }
     \DeclareCaptionStyle{MarinoTableStyle}[justification=centering]{
         format=plain,
         indention=0cm,
@@ -72,7 +86,7 @@
     }
 
     \captionsetup*[figure]{style=MarinoCaptionStyle}
-    \captionsetup*[sub]{style=MarinoSubcaptionStyle}
+    % \captionsetup*[sub]{style=MarinoSubcaptionStyle}
     \captionsetup*[table]{style=MarinoTableStyle}
 
     \renewcommand*{\thesubfigure}{\Alph{subfigure}}
@@ -85,8 +99,10 @@
     \renewcommand*{\thechapter}{\roman{chapter}}
     \renewcommand*{\thesection}{\thechapter.\arabic{section}}
     \renewcommand*{\thesubsection}{\Alph{subsection}}
+    \renewcommand*{\theequation}{\thechapter.\arabic{equation}}
+    % \renewcommand*{\theequation}{\arabic{equation}.13}
 
-    \renewcommand*{\textflush}{justify}
+    \renewcommand*{\textflush}{\justifying}
     \renewcommand*{\afterepigraphskip}{\baselineskip}
     \renewcommand*{\beforeepigraphskip}{\baselineskip}
     \renewcommand*{\epigraphsize}{\singlespacing\fontsize{10pt}{\baselineskip}\selectfont}
@@ -102,18 +118,29 @@
         \makeatother
     }
 
+    \newcommand*{\namera}{
+        \fancyhf{}
+        \lhead{Acadêmico: Gabriel Marino de Oliveira. \quad RA: 115114.}
+        \rhead{\today.}
+    }
+
+    \newcommand*{\respace}{
+        \titleformat{\chapter}[display]   
+        {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}   
+        \titlespacing*{\chapter}{0pt}{-50pt}{40pt}
+    }
+
     \usetikzlibrary{decorations.markings}
     \pgfplotsset{compat=1.16, compat/show suggested version=true}
     \usepgfplotslibrary{external}
 
-    \newcommand{\printbib}{ 
-        \singlespacing
-        \fontsize{10pt}{\baselineskip}\selectfont
-        \printbibliography[heading=bibintoc]
-    }
     \IfFileExists{ref.bib}{
         \addbibresource{ref.bib}
-        \AtEndDocument{\printbib}
+        \AtEndDocument{
+            \singlespacing
+            \fontsize{10pt}{\baselineskip}\selectfont
+            \printbibliography[heading=bibintoc]
+        }
     }
 
     \newcommand*{\printncl}{
@@ -124,6 +151,61 @@
     \newcommand*{\e}[1]{
         \times10^{#1}
     }
+
+    \newcommand*{\fourierT}[1]{\mathscr{F}\left\{#1\right\}(k)}
+    \newcommand*{\FourierT}[1]{\fourierT{#1}=\frac{1}{\sqrt{2\pi}}\int_{-\infty}^{\infty}#1e^{-ikt}dt}
+    \newcommand*{\laplaceT}[1]{\mathscr{L}\left\{#1\right\}(s)}
+    \newcommand*{\LaplaceT}[1]{\laplaceT{#1}=\int_{0}^{\infty}#1e^{-st}dt}
+
+    \newcommand*{\gammaFun}[1]{\Gamma\left(#1\right)=\int_{0}^{\infty}t^{\left(#1-1\right)}e^{-t}dt}
+
+    \newcommand*{\del}{\vec{\nabla}}
+    \newcommand*{\edel}{\left(\frac{\partial}{\partial x}\hat{i}+\frac{\partial}{\partial y}\hat{j}+\frac{\partial}{\partial z}\hat{k}\right)}
+
+    \newcommand*{\grad}[1]{\del#1}
+    \newcommand*{\GradCar}[1]{\grad{#1}=\frac{\partial#1}{\partial x}\hat{i}+\frac{\partial#1}{\partial y}\hat{j}+\frac{\partial#1}{\partial z}\hat{k}}
+    \newcommand*{\GradCyl}[1]{\grad{#1}=\frac{\partial#1}{\partial r}\hat{r}+\frac{1}{r}\frac{\partial#1}{\partial \theta}\hat{\theta}+\frac{\partial#1}{\partial z}\hat{k}}
+    \newcommand*{\GradSph}[1]{\grad{#1}=\frac{\partial#1}{\partial r}\hat{r}+\frac{1}{r}\frac{\partial#1}{\partial \theta}\hat{\theta}+\frac{1}{r\sin(\theta)}\frac{\partial#1}{\partial \varphi}\hat{\varphi}}
+
+    \newcommand*{\DivCar}[1]{\del\cdot{\vec{#1}}=\frac{\partial#1_x}{\partial x}+\frac{\partial#1_y}{\partial y}+\frac{\partial#1_z}{\partial z}}
+    \newcommand*{\DivCyl}[1]{\del\cdot{\vec{#1}}=\frac{1}{r}\frac{\partial (r#1_r)}{\partial r}+\frac{1}{r}\frac{\partial#1_{\theta}}{\partial \theta}+\frac{\partial#1_z}{\partial z}}
+    \newcommand*{\DivSph}[1]{
+        \del\cdot{\vec{#1}}=
+        \frac{1}{r^2}\frac{\partial (r^2#1_r)}{\partial r}+\frac{1}{r\sin(\theta)}\frac{\partial (#1_{\theta}\sin(\theta))}{\partial \theta}+\frac{1}{r\sin(\theta)}\frac{\partial#1_{\varphi}}{\partial \varphi}
+    }
+
+    \newcommand*{\rot}[1]{\del\times\vec{#1}}
+    \newcommand*{\RotCar}[1]{
+        \rot{#1}=
+            \begin{vmatrix}
+                \hat{i}                         &       \hat{j}                     &       \hat{k}                     \\
+                \frac{\partial}{\partial x}     &   \frac{\partial}{\partial y}     &   \frac{\partial}{\partial z}     \\
+                #1_x                            &   #1_y                            &   #1_z
+            \end{vmatrix}
+    }
+    \newcommand*{\RotSph}[1]{
+        \rot{#1}=\frac{1}{r^2\sin(\theta)}
+            \begin{vmatrix}
+                \hat{r}                         &       r\hat{\theta}                   &   r\sin(\theta)\hat{\varphi}              \\
+                \frac{\partial}{\partial r}     &   \frac{\partial}{\partial \theta}    &   \frac{\partial}{\partial \varphi}       \\
+                #1_r                            &   #1_\theta                           &   #1_\varphi
+            \end{vmatrix}
+    }
+
+    \newcommand*{\lapS}[1]{\del^2#1}
+    \newcommand*{\LapSCar}[1]{\lapS{#1}=\frac{\partial^2#1}{\partial x^2}=\frac{\partial^2#1}{\partial y^2}+\frac{\partial^2#1}{\partial z^2}}
+    \newcommand*{\LapSCyl}[1]{
+        \lapS{#1}=
+        \frac{1}{r}\frac{\partial}{\partial r}\left(r\frac{\partial#1}{\partial r}\right)+\frac{1}{r^2}\frac{\partial^2#1_{\theta}}{\partial \theta^2}+\frac{\partial^2#1_z}{\partial z^2}
+    }
+    \newcommand*{\LapSSph}[1]{
+        \lapS{#1}=
+        \frac{1}{r^2}\frac{\partial}{\partial r}\left(r^2\frac{\partial#1}{\partial r}\right)+
+        \frac{1}{r^2\sin(\theta)}\frac{\partial}{\partial \theta}\left(\sin(\theta)\frac{\partial#1}{\partial \theta}\right)+
+        \frac{1}{r^2\sin^2(\theta)}\frac{\partial^2#1_{\varphi}}{\partial \varphi^2}
+    }
+    \newcommand*{\lapV}[1]{\del^2\vec{#1}}
+    \newcommand*{\LapVCar}[1]{\lapV{#1}=\frac{\partial#1_x}{\partial x}\hat{i}+\frac{\partial#1_y}{\partial y}\hat{j}+\frac{\partial#1_z}{\partial z}\hat{k}}
 
     \newcommand*{\toc}{
         \pagenumbering{gobble}
@@ -145,6 +227,17 @@
     % automatically print the appendices at the end of the document
     \AtEndDocument{\AddAppendices}
 
+    \definecolor{cafe}{HTML}{C0FFEE}
+    \definecolor{red}{HTML}{FF0000}
+    \definecolor{grn}{HTML}{00FF00}
+    \definecolor{blu}{HTML}{0000FF}
+    \definecolor{cl1}{HTML}{FF0000}
+    \definecolor{cl2}{HTML}{0000FF}
+    \definecolor{cl3}{HTML}{FFFF00}
+    \definecolor{cl4}{HTML}{FF00FF}
+    \definecolor{cl5}{HTML}{00FFFF}
+
     \onehalfspacing
     \setmainfont{Times New Roman}
     \setlength{\parindent}{1.25cm}
+    \setlength{\parskip}{\baselineskip}
