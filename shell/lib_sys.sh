@@ -5,6 +5,7 @@ sudo apt-get update -y && sudo apt-get upgrade -y
 echo "PS1='\[\e[0;38;5;220m\][\[\e[0;38;5;207m\]\u\[\e[0;97m\]@\[\e[0;38;5;40m\]\W \[\e[0;38;5;226m\]$(git branch 2>/dev/null | grep '"'"'^*'"'"' | colrm 1 2)\[\e[0;38;5;220m\]]\[\e[0;38;5;40m\]\$ \[\e[0m\]'" >> ~/.bashrc
 echo "alias cls='clear'" >> ~/.bashrc
 echo "alias purge='sudo rm -r'" >> ~/.bashrc
+echo "alias update='cd && sudo apt update -y && sudo apt upgrade -y && sudo apt full-upgrade -y'" >> ~/.bashrc
 source ~/.bashrc
 
 # ------------------------------------------------------------------- #
