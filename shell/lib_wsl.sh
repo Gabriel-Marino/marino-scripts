@@ -43,6 +43,9 @@ sudo npm install npm@latest -g
 sudo npm install -g typescript react react-dom next --save-dev
 
 # JavaDK
+sudo apt install java-common -y
+wget -O- https://apt.corretto.aws/corretto.key | sudo apt-key add - 
+sudo add-apt-repository 'deb https://apt.corretto.aws stable main'
 sudo apt install -y java-17-amazon-corretto-jdk
 
 # MongoDB

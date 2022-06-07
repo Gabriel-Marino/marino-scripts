@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo apt-get update -y && sudo apt-get upgrade -y
+sudo apt update -y && sudo apt upgrade -y
 
 echo "PS1='\[\e[0;93m\][\[\e[0;95m\]\u\[\e[0;97m\]@\[\e[0;92m\]\W \[\e[0;3;96m\]$(git branch 2>/dev/null | grep '"'"'^*'"'"' | colrm 1 2)\[\e[0;93m\]]\[\e[0;92m\]$ \[\e[0m\]'" >> ~/.bashrc
 echo "alias cls='clear'" >> ~/.bashrc
@@ -8,24 +8,6 @@ echo "alias purge='sudo rm -r'" >> ~/.bashrc
 echo "alias folder='explorer.exe .'" >> ~/.bashrc
 echo "alias update='cd && sudo apt update -y && sudo apt upgrade -y && sudo apt full-upgrade -y'" >> ~/.bashrc
 source ~/.bashrc
-
-# ------------------------------------------------------------------- #
-sudo dpkg --configure -a
-
-sudo apt-get install wget -y
-sudo apt-get install git -y
-sudo apt-get install openssh -y
-
-#   Installing VScode;
-wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
-sudo apt-get install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/ -y
-sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list' -y
-sudo apt-get install apt-transport-https -y
-sudo apt-get update -y
-sudo apt-get install code -y
-#!/bin/bash
-
-sudo apt update -y && sudo apt upgrade -y
 
 # ------------------------------------------------------------------- #
 sudo dpkg --configure -a
@@ -61,6 +43,9 @@ sudo npm install npm@latest -g
 sudo npm install -g typescript react react-dom next --save-dev
 
 # JavaDK
+sudo apt install java-common -y
+wget -O- https://apt.corretto.aws/corretto.key | sudo apt-key add - 
+sudo add-apt-repository 'deb https://apt.corretto.aws stable main'
 sudo apt install -y java-17-amazon-corretto-jdk
 
 # MongoDB
@@ -97,5 +82,14 @@ sudo apt install --only-upgrade mongocli
 # make all test
 
 # ------------------------------------------------------------------- #
+
+#   Installing VScode;
+wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
+sudo apt install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/ -y
+sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list' -y
+sudo apt install apt-transport-https -y
+sudo apt update -y
+sudo apt install code -y
+
 sudo apt update -y && sudo apt upgrade -y
 clear
