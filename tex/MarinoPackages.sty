@@ -14,7 +14,7 @@
 % \end{document}
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{MarinoPackages}[2022/04/04 My style with all packages i use]
+\ProvidesPackage{MarinoPackages}[2022/06/13 My style with all packages i use]
 
 \RequirePackage[enable-debug]{expl3}    %   Create compatibility between LaTeX2e and LaTeX3
 
@@ -22,13 +22,13 @@
 % \RequirePackage[utf8]{inputenc}       % no need to use if using XeLaTeX or LuaLaTeX
 \RequirePackage[document]{ragged2e}
 \RequirePackage[brazil, brazilian]{babel}
-\RequirePackage{fontspec, setspace, lmodern, anyfontsize, indentfirst}
+\RequirePackage{fontspec, setspace, lmodern, anyfontsize, indentfirst, makecell}
 \RequirePackage[debug=true, strict=true, portuguese=brazilian, style=brazilian]{csquotes}
 \RequirePackage[backend=biber, style=abnt, bibstyle=numeric, citestyle=numeric-comp]{biblatex}
 \RequirePackage[a4paper, tmargin=3cm, lmargin=3cm, rmargin=2cm, bmargin=2cm, head=65pt, foot=10pt, footskip=15pt]{geometry}
 \RequirePackage{graphicx, xcolor, comment, multirow, multicol, indentfirst, float, tikz, pgfplots, pgffor, listings, fancyhdr, colortbl, epigraph}
 \RequirePackage{mathtools, mathrsfs, amsmath, amsthm, amsfonts, dsfont, blindtext, textcomp, gensymb, empheq, booktabs, caption, subcaption, textcase, braket, titlesec}
-\RequirePackage[warnings-off={mathtools-colon,mathtools-overbracket}]{unicode-math}
+\RequirePackage[warnings-off={mathtools-colon, mathtools-overbracket}]{unicode-math}
 \RequirePackage{imakeidx, hyperref, etoolbox, lipsum, extramarks, xpatch, environ}
 \RequirePackage[nottoc, notlof, notlot, numbib]{tocbibind}
 \RequirePackage[toc, titletoc, header]{appendix}
@@ -241,3 +241,4 @@
     \setmainfont{Times New Roman}
     \setlength{\parindent}{1.25cm}
     \setlength{\parskip}{\baselineskip}
+    \fontsize{12pt}{\baselineskip}\selectfont
