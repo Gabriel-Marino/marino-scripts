@@ -1,0 +1,13 @@
+[alias]
+	s = status -sb
+	cd = "!f() { if $# -eq 0; then git checkout master; else git checkout $1; fi}; f"
+	br = branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate
+	last = log -1 HEAD --stat
+	cm = commit -m
+	dv = difftool -t vimdiff -y
+	gl = config --global -l
+	se = !git rev-list --all | xargs git grep -F
+[core]
+	editor = vim
+[help]
+	autocorrect = 20
