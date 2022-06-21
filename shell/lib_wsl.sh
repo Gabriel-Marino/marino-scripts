@@ -37,10 +37,11 @@ pip3 install pandas
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt install -y nodejs
 sudo apt install -y npm
-sudo npm install -g n
-sudo n latest
-sudo npm install npm@latest -g
-sudo npm install -g typescript react react-dom next --save-dev
+# sudo npm install -g n
+# sudo n latest
+# sudo npm install npm@latest -g
+# sudo npm install -g typescript react react-dom next --save-dev
+sudo npm install --global n npm@latest yarn helmet next react react-dom typescript @types/node @types/react
 
 # Deno and Yarn
 curl -fsSL https://deno.land/install.sh | sh
