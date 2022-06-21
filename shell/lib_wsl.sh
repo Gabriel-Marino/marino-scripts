@@ -33,7 +33,7 @@ pip3 install seaborn
 pip3 install gifmaker
 pip3 install pandas
 
-# Javascript and Typescript
+# Node and Npm
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt install -y nodejs
 sudo apt install -y npm
@@ -41,6 +41,10 @@ sudo npm install -g n
 sudo n latest
 sudo npm install npm@latest -g
 sudo npm install -g typescript react react-dom next --save-dev
+
+# Deno and Yarn
+curl -fsSL https://deno.land/install.sh | sh
+npm install --global yarn
 
 # JavaDK
 sudo apt install java-common -y
@@ -55,6 +59,8 @@ echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb
 sudo apt update
 sudo apt install -y mongocli
 sudo apt install --only-upgrade mongocli
+
+# Julia, R
 
 # # ruby
 # sudo apt install ruby-full -y
