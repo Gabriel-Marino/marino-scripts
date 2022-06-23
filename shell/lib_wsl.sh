@@ -61,6 +61,12 @@ sudo apt update
 sudo apt install -y mongocli
 sudo apt install --only-upgrade mongocli
 
+# asdf package manager
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.10.0
+echo ". $HOME/.asdf/asdf.sh" >> ~/.bashrc
+echo ". $HOME/.asdf/completions/asdf.bash" >> ~/.bashrc
+asdf update
+
 # Julia, R
 
 # # ruby
