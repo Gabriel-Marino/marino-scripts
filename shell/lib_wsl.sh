@@ -69,8 +69,12 @@ asdf update
 
 # Julia, R
 
-# # ruby
-# sudo apt install ruby-full -y
+# ruby
+sudo apt install ruby-full -y
+
+# # Haskell
+# curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
+sudo apt install ghc
 
 # #SQL Lite
 # wget https://www.sqlite.org/2022/sqlite-autoconf-3380500.tar.gz
@@ -81,9 +85,6 @@ asdf update
 # make
 # make install
 # cd ../
-
-# # Haskell
-# curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
 
 # # Rust
 # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
