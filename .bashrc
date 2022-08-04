@@ -115,10 +115,23 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+
+apt() {
+  command nala "$@"
+}
+sudo() {
+  if [ "$1" = "apt" ]; then
+    shift
+    command sudo nala "$@"
+  else
+    command sudo "$@"
+  fi
+}
+
 alias cls='clear'
 alias purge='sudo rm -r'
 alias folder='explorer.exe .'
-alias update='cd && sudo apt update -y && sudo apt upgrade -y && sudo apt full-upgrade -y'
+alias update='cd && sudo apt update && sudo apt upgrade'
 # get current branch in git repo
 function parse_git_branch() {
 	BRANCH=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'`
@@ -169,3 +182,5 @@ function parse_git_dirty {
 PS1='\[\e[0;93m\][\[\e[0;95m\]\u\[\e[0;97m\]@\[\e[0;92m\]\W \[\e[0;3;96m\]$(parse_git_branch)\[\e[0;93m\]]\[\e[0;92m\]$ \[\e[0m\]'
 unset HISTFILE
 export LESSHISTFILE="-"
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
