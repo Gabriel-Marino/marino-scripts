@@ -28,7 +28,7 @@ sudo apt install ruby-full -y
 curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
 
 # bun JS runtime
-curl https://bun.sh/install | bash
+# curl https://bun.sh/install | bash
 
 #   Installing Python enviroment and some libraries.
 sudo apt install python3 -y
