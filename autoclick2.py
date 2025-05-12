@@ -38,17 +38,17 @@ def autoClick(timeout: float=50.0, VK_START: int=0x41, VK_PAUSE: int=0x42, VK_QU
 
     while True:
         if not clicking and is_key_pressed(VK_START):
-            print("Clicking started.")
+            print("Clicking started.", end="\r")
             clicking = True
             time.sleep(0.200)  # prevent immediate re-trigger
 
         elif clicking and is_key_pressed(VK_PAUSE):
-            print("Clicking paused.")
+            print("Clicking paused.", end="\r")
             clicking = False
             time.sleep(0.200)
 
         elif is_key_pressed(VK_QUIT):
-            print("Quitting...")
+            print("\nQuitting...")
             time.sleep(0.200)
             break
 
