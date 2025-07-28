@@ -4,11 +4,14 @@ import logging
 import traceback
 import argparse
 import sys
+import os
+import re
+from typing import Callable
 
 #! THIS IS AN AUTOCLICKER I DEVELOPED MAINLY WITH HELP OF CHATGPT, I MADE IT ESPECIALLY TO EXPAND MY PYTHON KNOWLEDGE BEYOND THE BASIC AND TO INTRODUCE MYSELF TO HANDLE ERRORS, LOGGING, TRACEBACK AND ARGPARSING
 
 logger = logging.getLogger()
-logger.setLevel(logging.ERROR)
+logger.setLevel(logging.DEBUG)
 log_file = logging.FileHandler('autoclicker.log', mode='a')
 log_file.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 logger.addHandler(log_file)
@@ -18,14 +21,19 @@ GetAsyncKeyState = u32.GetAsyncKeyState
 VkKeyScanW = u32.VkKeyScanW
 GetKeyNameTextW = u32.GetKeyNameTextW
 MapVirtualKeyW = u32.MapVirtualKeyW
+mouse_event = u32.mouse_event
 
-is_key_pressed= lambda virtual_key: GetAsyncKeyState(virtual_key) & 0x8000 != 0
+MOUSEEVENTF_LEFTDOWN = 0x0002
+MOUSEEVENTF_LEFTUP = 0x0004
+KEY_PRESS_MASK = 0x8000
 
-get_virtual_key = lambda key: (
+IS_KEY_PRESSED: Callable[[int], bool] = lambda virtual_key: GetAsyncKeyState(virtual_key) & KEY_PRESS_MASK != 0
+
+GET_VIRTUAL_KEY: Callable[[str], int] = lambda key: (
     VkKeyScanW(ord(key)) & 0xFF if len(key) == 1 else (_ for _ in ()).throw(ValueError(f"Key '{key}' must be a single character."))
 )
 
-get_key_name= lambda virtual_key: (
+GET_KEY_NAME: Callable[[int], str] = lambda virtual_key: (
     lambda _, l_param: (
         lambda buf: GetKeyNameTextW(l_param, buf, 64) and buf.value
     )(
@@ -36,7 +44,21 @@ get_key_name= lambda virtual_key: (
 )
 
 # Detects rising edge (key just pressed this frame)
-rising_detection = lambda curr, prev: (curr and not prev, curr)
+RISING_DETECTION: Callable[[bool, bool], list] = lambda curr, prev: (curr and not prev, curr)
+
+def cleanup() -> None:
+    """
+    Performs cleanup operations by releasing the left mouse button, logging the cleanup event,
+    shutting down the logging system, and printing a confirmation message.
+
+    This function is typically called at the end of the program to ensure that resources
+    related to mouse events and logging are properly released.
+    """
+    TEXT = "Resources are cleaned up."
+    mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+    logger.info(TEXT)
+    logging.shutdown()
+    print(TEXT)
 
 def autoclick(timeout: float=50.0, VK_START: int=0x41, VK_PAUSE: int=0x42, VK_QUIT: int=0x43) -> None:
     """
@@ -62,47 +84,61 @@ def autoclick(timeout: float=50.0, VK_START: int=0x41, VK_PAUSE: int=0x42, VK_QU
     # To prevent the start and the quitting at unintended moments
     VK_CTRL = 0x11
 
-    MOUSEEVENTF_LEFTDOWN = 0x0002
-    MOUSEEVENTF_LEFTUP = 0x0004
-
     # To prevent immediate re-trigger, the sleep duration is arbitrary, thus I choose a funny number
-    SLEEPTIME = 0.069
+    DEBOUNCE_SLEEP_TIME = 0.069
 
-    print("Press '{} + {}' to start/resume clicking, '{}' to pause, and '{} + {}' to quit.".format(get_key_name(VK_CTRL), get_key_name(VK_START), get_key_name(VK_PAUSE), get_key_name(VK_CTRL), get_key_name(VK_QUIT)))
+    print(f"Press '{GET_KEY_NAME(VK_CTRL)} + {GET_KEY_NAME(VK_START)}' to start/resume clicking, '{GET_KEY_NAME(VK_PAUSE)}' to pause, and '{GET_KEY_NAME(VK_CTRL)} + {GET_KEY_NAME(VK_QUIT)}' to quit.")
 
     clicking = False
     start_state = pause_state = quit_state = False
 
     while True:
 
-        check_start, start_state = rising_detection(is_key_pressed(VK_CTRL) and is_key_pressed(VK_START), start_state)
-        if not clicking and check_start:
+        start, start_state = RISING_DETECTION(IS_KEY_PRESSED(VK_CTRL) and IS_KEY_PRESSED(VK_START), start_state)
+        if not clicking and start:
             print("Clicking started.", end="\r")
             clicking = True
-            time.sleep(SLEEPTIME)
+            time.sleep(DEBOUNCE_SLEEP_TIME)
 
-        check_pause, pause_state = rising_detection(is_key_pressed(VK_PAUSE), pause_state)
-        if clicking and check_pause:
+        pause, pause_state = RISING_DETECTION(IS_KEY_PRESSED(VK_PAUSE), pause_state)
+        if clicking and pause:
             print("Clicking paused.", end="\r")
             clicking = False
-            time.sleep(SLEEPTIME)
+            time.sleep(DEBOUNCE_SLEEP_TIME)
 
-        check_quit, quit_state = rising_detection(is_key_pressed(VK_CTRL) and is_key_pressed(VK_QUIT), quit_state)
-        if check_quit:
+        quit, quit_state = RISING_DETECTION(IS_KEY_PRESSED(VK_CTRL) and IS_KEY_PRESSED(VK_QUIT), quit_state)
+        if quit:
             print("\nQuitting...")
-            time.sleep(SLEEPTIME)
+            time.sleep(DEBOUNCE_SLEEP_TIME)
+            cleanup()
             break
 
         if clicking:
-            u32.mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0) # the pipe operator cause both events to be sent simultaneously
+            # the pipe operator cause both events to be sent simultaneously
+            mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
             time.sleep(0.001*timeout)
 
         else:
             time.sleep(.2)
 
 
-def get_parser ():
-    parser = argparse.ArgumentParser()
+def get_parser() -> object:
+    """
+    Creates and returns an argument parser for the autoclicker script.
+    The parser supports the following command-line arguments:
+        --timeout:   Sleep time in milliseconds between clicks (float, default: 42.0).
+        --startkey:  Virtual key to start/resume clicking (str, default: 'S').
+        --pausekey:  Virtual key to pause clicking (str, default: 'P').
+        --quitkey:   Virtual key to quit the autoclicker (str, default: 'Q').
+    Returns:
+        argparse.ArgumentParser: Configured argument parser for the autoclicker.
+    """
+    parser = argparse.ArgumentParser(
+        prog=re.sub(r'\.py$', '', os.path.basename(__file__)),
+        usage="%(prog)s [options]",
+        description="A simple auto-clicker script that allows you to automate mouse clicks.",
+        epilog="Press 'Ctrl + StartKey' to start/resume clicking, 'PauseKey' to pause, and 'Ctrl + QuitKey' to quit."
+    )
     parser.add_argument("--timeout" , type=float, default=42.0, help="Sleep time in milliseconds between clicks.")
     parser.add_argument("--startkey", type=str, default='S', help="Virtual key to start/resume clicking.")
     parser.add_argument("--pausekey", type=str, default='P', help="Virtual key to pause clicking.")
@@ -124,10 +160,17 @@ def main():
         parser = get_parser()
         args = parser.parse_args()
         logger.info(f"Parsed arguments: {vars(args)}")
-        autoclick(timeout=args.timeout, VK_START=get_virtual_key(args.startkey), VK_PAUSE=get_virtual_key(args.pausekey), VK_QUIT=get_virtual_key(args.quitkey))
+        autoclick(
+            timeout=args.timeout,
+            VK_START=GET_VIRTUAL_KEY(args.startkey),
+            VK_PAUSE=GET_VIRTUAL_KEY(args.pausekey),
+            VK_QUIT=GET_VIRTUAL_KEY(args.quitkey)
+        )
 
     except KeyboardInterrupt:
         print("\nInterrupted by keyboard!")
+        logger.info("Interrupted by user.")
+        cleanup()
 
     except Exception as e:
         print(f"\n An exception occurred: {e}.")
@@ -138,6 +181,7 @@ def main():
             print(f"File: {filename}, line no.: {line}.\nCheck the complete traceback at: {log_path}.\n")
 
         logger.error("An exception occurred!", exc_info=True)
+        logging.shutdown()
         raise
 
 
