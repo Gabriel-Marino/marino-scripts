@@ -4,36 +4,89 @@ import logging
 import os
 import re
 import sys
+import threading
 import time
 import traceback
 
+import ctypes.wintypes as w
+
+class MOUSEINPUT(ctypes.Structure):
+    """
+    Represents the MOUSEINPUT structure used by the Windows API for synthesizing mouse input events.
+
+    Attributes:
+        dx (w.LONG): The absolute position of the mouse, or the amount of motion since the last event, depending on the value of dwFlags.
+        dy (w.LONG): The absolute position of the mouse, or the amount of motion since the last event, depending on the value of dwFlags.
+        mouseData (w.DWORD): If dwFlags contains MOUSEEVENTF_WHEEL, then mouseData specifies the amount of wheel movement. Otherwise, it may specify X button information.
+        dwFlags (w.DWORD): A set of bit flags that specify various aspects of mouse motion and button clicks.
+        time (w.DWORD): The time stamp for the event, in milliseconds. If this parameter is 0, the system will provide its own time stamp.
+        dwExtraInfo (ctypes.c_ulonglong): An additional value associated with the mouse event.
+    """
+
+    _fields_ = [
+        ("dx", w.LONG),
+        ("dy", w.LONG),
+        ("mouseData", w.DWORD),
+        ("dwFlags", w.DWORD),
+        ("time", w.DWORD),
+        ("dwExtraInfo", ctypes.c_ulonglong)
+    ]
+
+class INPUTUNION(ctypes.Union):
+    """
+    A ctypes.Union subclass representing the INPUTUNION structure used in Windows API input simulation.
+
+    Attributes:
+        mi (MOUSEINPUT): Represents mouse input data for the union. This field is used when simulating mouse events.
+    """
+
+    _fields_ = [
+        ("mi", MOUSEINPUT)
+    ]
+
+class INPUT(ctypes.Structure):
+    """
+    Represents a generic input event structure for use with Windows API functions.
+
+    Attributes:
+        type (w.DWORD): Specifies the type of the input event (e.g., mouse, keyboard, hardware).
+        union (INPUTUNION): A union containing the information about the input event, 
+            which varies depending on the type specified.
+    """
+
+    _fields_ = [
+        ("type", w.DWORD),
+        ("union", INPUTUNION)
+    ]
+
 class WindowsKeysHandler:
     """
-    WindowsKeysHandler provides static methods for interacting with virtual keyboard and mouse events on Windows systems.
-    This class leverages the Windows API via ctypes to:
-    - Check if a virtual key is currently pressed.
-    - Convert a character to its corresponding virtual key code.
-    - Retrieve the human-readable name of a virtual key.
-    - Detect rising edges in boolean signals (useful for key press detection).
-    - Simulate mouse left-click events.
+    WindowsKeysHandler
+    A utility class for handling keyboard and mouse input events on Windows using the ctypes library.
+    Provides static methods to check key states, convert characters to virtual key codes, retrieve key names,
+    detect rising edges in boolean signals, and simulate mouse left-click events using the Windows API.
     Attributes:
-        u32: Reference to the user32 DLL from the Windows API.
-        GetAsyncKeyState: Function to get the state of a virtual key.
-        VkKeyScanW: Function to translate a character to a virtual key code.
-        GetKeyNameTextW: Function to retrieve the name of a key.
-        MapVirtualKeyW: Function to map virtual key codes.
-        mouse_event: Function to simulate mouse events.
-        KEY_PRESS_MASK: Bitmask for detecting key press state.
-        SHIFT_KEY_MASK: Bitmask for extracting virtual key code.
-        MOUSEEVENTF_LEFTDOWN: Flag for mouse left button down event.
-        MOUSEEVENTF_LEFTUP: Flag for mouse left button up event.
+        u32: Reference to the user32 DLL loaded via ctypes.
+        GetAsyncKeyState: Function pointer to user32.GetAsyncKeyState for checking key states.
+        VkKeyScanW: Function pointer to user32.VkKeyScanW for converting characters to virtual key codes.
+        GetKeyNameTextW: Function pointer to user32.GetKeyNameTextW for retrieving key names.
+        MapVirtualKeyW: Function pointer to user32.MapVirtualKeyW for mapping virtual key codes.
+        send_input: Function pointer to user32.SendInput for simulating input events.
+        KEY_PRESS_MASK (int): Bitmask for detecting key press state.
+        SHIFT_KEY_MASK (int): Bitmask for extracting virtual key code from VkKeyScanW result.
+        MOUSEEVENTF_LEFTDOWN (int): Flag for mouse left button down event.
+        MOUSEEVENTF_LEFTUP (int): Flag for mouse left button up event.
     Methods:
-        is_key_pressed(virtual_key: int) -> bool:
-        get_virtual_key(key: str) -> int:
-        get_key_name(virtual_key: int) -> str:
-        rising_detection(curr: bool, prev: bool) -> list[bool, bool]:
-        mouse_click():
-            Simulates a mouse left-click event.
+        is_key_pressed(virtual_key: int) -> bool
+        get_virtual_key(key: str) -> int
+        get_key_name(virtual_key: int) -> str
+        rising_detection(curr: bool, prev: bool) -> list[bool, bool]
+        mouse_left_down()
+            Simulates a mouse left button down event.
+        mouse_left_up()
+            Simulates a mouse left button up event.
+        mouse_click()
+            Simulates a mouse left-click event (down and up).
     """
 
     u32 = ctypes.windll.user32
@@ -41,11 +94,13 @@ class WindowsKeysHandler:
     VkKeyScanW = u32.VkKeyScanW
     GetKeyNameTextW = u32.GetKeyNameTextW
     MapVirtualKeyW = u32.MapVirtualKeyW
-    mouse_event = u32.mouse_event
+    # mouse_event = u32.mouse_event
+    send_input = u32.SendInput
 
     KEY_PRESS_MASK = 0x8000
     SHIFT_KEY_MASK = 0xFF
 
+    MOUSE_INPUT = 0
     MOUSEEVENTF_LEFTDOWN = 0x0002
     MOUSEEVENTF_LEFTUP = 0x0004
 
@@ -100,7 +155,7 @@ class WindowsKeysHandler:
         return buf.value
 
     @staticmethod
-    def rising_detection(curr: bool, prev: bool) -> list[bool, bool]:
+    def rising_detection(curr: bool, prev: bool) -> list[bool]:
         """
         Detects a rising edge in a boolean signal.
 
@@ -117,16 +172,78 @@ class WindowsKeysHandler:
         return curr and not prev, curr
 
     @staticmethod
-    def mouse_click():
+    def mouse_left_down():
         """
-        Simulates a mouse left-click event by triggering both mouse button down and up actions.
-
+        Simulates a left mouse button press (mouse down event) using the Windows API.
         Returns:
-            int: The result of the mouse_event function, typically indicating success or failure.
+            int: The result of the SendInput function call, indicating the number of events successfully inserted into the input stream.
         """
 
-        return WindowsKeysHandler.mouse_event(WindowsKeysHandler.MOUSEEVENTF_LEFTDOWN | WindowsKeysHandler.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
-    
+        input = INPUT()
+        input.type = WindowsKeysHandler.MOUSE_INPUT
+        input.union.mi = MOUSEINPUT(
+            dx=0,
+            dy=0,
+            mouseData=0,
+            dwFlags=WindowsKeysHandler.MOUSEEVENTF_LEFTDOWN,
+            time=0,
+            dwExtraInfo=0
+        )
+
+        return WindowsKeysHandler.send_input(1, ctypes.byref(input), ctypes.sizeof(input))
+
+    @staticmethod
+    def mouse_left_up():
+        """
+        Simulates a mouse left button release event.
+        This function creates and sends a low-level input event to the operating system,
+        emulating the release (up) of the left mouse button. It constructs the appropriate
+        INPUT structure with the necessary flags and parameters, then dispatches it using
+        the Windows API.
+        Returns:
+            int: The number of events successfully inserted into the input stream.
+        """
+
+        input = INPUT()
+        input.type = WindowsKeysHandler.MOUSE_INPUT
+        input.union.mi = MOUSEINPUT(
+            dx=0,
+            dy=0,
+            mouseData=0,
+            dwFlags=WindowsKeysHandler.MOUSEEVENTF_LEFTUP,
+            time=0,
+            dwExtraInfo=0
+        )
+
+        return WindowsKeysHandler.send_input(1, ctypes.byref(input), ctypes.sizeof(input))
+
+    # A snippet of the original mouse_click function, here the clicking action is send in a single input event using the pipe operator
+    # @staticmethod
+    # def mouse_click():
+    #     """
+    #     Simulates a mouse left-click event by triggering both mouse button down and up actions.
+
+    #     Returns:
+    #         int: The result of the mouse_event function, typically indicating success or failure.
+    #     """
+
+    #     # By stated in the documentation, this function is suspended: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-mouse_event
+    #     # return WindowsKeysHandler.mouse_event(WindowsKeysHandler.MOUSEEVENTF_LEFTDOWN | WindowsKeysHandler.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+    #     # Documentation says to use SendInput instead, this implementation was made using the help of chatgpt and copilot
+    #     input = INPUT()
+    #     input.type = WindowsKeysHandler.MOUSE_INPUT
+    #     input.union.mi = MOUSEINPUT(
+    #         dx=0,
+    #         dy=0,
+    #         mouseData=0,
+    #         dwFlags=WindowsKeysHandler.MOUSEEVENTF_LEFTDOWN | WindowsKeysHandler.MOUSEEVENTF_LEFTUP,
+    #         time=0,
+    #         dwExtraInfo=0
+    #     )
+
+    #     # Send one input event, which is a mouse click
+    #     return WindowsKeysHandler.send_input(1, ctypes.byref(input), ctypes.sizeof(input))
+
 class ParserHandler:
     """
     ParserHandler provides a static method to create and configure an argument parser
@@ -138,14 +255,14 @@ class ParserHandler:
     """
 
     @staticmethod
-    def get_parser() -> object:
+    def get_parser() -> argparse.ArgumentParser:
         """
         Creates and returns an argument parser for the auto-clicker script.
         The parser supports the following command-line options:
             --timeout   : Sleep time in milliseconds between clicks (default: 42.0).
             --startkey  : Virtual key to start/resume clicking (default: 'S').
-            --pausekey  : Virtual key to pause clicking (default: 'Z').
-            --quitkey   : Virtual key to quit the autoclicker (default: 'X').
+            --pausekey  : Virtual key to pause clicking (default: 'P').
+            --quitkey   : Virtual key to quit the autoclicker (default: 'Q').
         Returns:
             argparse.ArgumentParser: Configured argument parser for the script.
         """
@@ -154,13 +271,13 @@ class ParserHandler:
             prog=os.path.basename(__file__),
             usage="%(prog)s [options]",
             description="A simple auto-clicker script that allows you to automate mouse clicks.",
-            epilog="Press 'Ctrl + StartKey' to start/resume clicking, 'PauseKey' to pause, and 'Ctrl + QuitKey' to quit."
+            epilog="Press 'StartKey' to start/resume clicking, 'PauseKey' to pause, and 'QuitKey' to quit."
         )
 
         parser.add_argument("--timeout" , type=float, default=42.0, help="Sleep time in milliseconds between clicks.")
         parser.add_argument("--startkey", type=str, default='S', help="Virtual key to start/resume clicking.")
-        parser.add_argument("--pausekey", type=str, default='Z', help="Virtual key to pause clicking.")
-        parser.add_argument("--quitkey" , type=str, default='X', help="Virtual key to quit the autoclicker.")
+        parser.add_argument("--pausekey", type=str, default='P', help="Virtual key to pause clicking.")
+        parser.add_argument("--quitkey" , type=str, default='Q', help="Virtual key to quit the autoclicker.")
 
         return parser
 
@@ -188,7 +305,7 @@ class LoggingHandler:
         """
 
         TEXT = "Resources are cleaned up."
-        WindowsKeysHandler.mouse_event(Autoclicker.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+        WindowsKeysHandler.mouse_left_up()
         LoggingHandler.logger.info(TEXT)
         logging.shutdown()
         print(TEXT)
@@ -199,24 +316,26 @@ class Autoclicker:
 
     def __init__(self):
         """
-        Initializes the autoclicker with default settings.
-
+        Initializes the autoclicker instance with threading events and key bindings.
         Attributes:
-            timeout (float): The delay between clicks in seconds.
-            start_key (int): The virtual-key code to start clicking (default: 0x41).
-            pause_key (int): The virtual-key code to pause clicking (default: 0x42).
-            quit_key (int): The virtual-key code to quit the autoclicker (default: 0x43).
-            clicking (bool): Indicates whether the autoclicker is currently clicking.
-            start_state (bool): Tracks the state of the start key.
-            pause_state (bool): Tracks the state of the pause key.
-            quit_state (bool): Tracks the state of the quit key.
+            clicking_event (threading.Event): Event to control the clicking state.
+            quit_event (threading.Event): Event to signal quitting the autoclicker.
+            timeout (float): Time interval (in seconds) between clicks.
+            start_key (int): Virtual key code to start clicking (default: 0x41).
+            pause_key (int): Virtual key code to pause clicking (default: 0x42).
+            quit_key (int): Virtual key code to quit the autoclicker (default: 0x43).
+            start_state (bool): State indicating if autoclicker is started.
+            pause_state (bool): State indicating if autoclicker is paused.
+            quit_state (bool): State indicating if autoclicker is quitting.
         """
+
+        self.clicking_event = threading.Event()
+        self.quit_event = threading.Event()
 
         self.timeout = 42.0
         self.start_key = 0x41
         self.pause_key = 0x42
         self.quit_key = 0x43
-        self.clicking = False
         self.start_state = self.pause_state = self.quit_state = False
 
     def setup(self, timeout: float, start_key: int, pause_key: int, quit_key: int) -> None:
@@ -249,25 +368,45 @@ class Autoclicker:
         Relies on the WindowsKeysHandler for key detection and mouse actions.
         """
 
+        click_thread = threading.Thread(target=self._click_loop, daemon=True)
+        click_thread.start()
+
         print(f"Press '{WindowsKeysHandler.get_key_name(self.start_key)}' to start/resume clicking, '{WindowsKeysHandler.get_key_name(self.pause_key)}' to pause, and '{WindowsKeysHandler.get_key_name(self.quit_key)}' to quit.")
 
-        while True:
-            start, self.rising_detection = WindowsKeysHandler.rising_detection(WindowsKeysHandler.is_key_pressed(self.start_key), self.start_state)
-            if not self.clicking and start:
-                Autoclicker._start(self)
+        while not self.quit_event.is_set():
+            start_edge, self.start_state = WindowsKeysHandler.rising_detection(WindowsKeysHandler.is_key_pressed(self.start_key), self.start_state)
+            if not self.clicking_event.is_set() and start_edge:
+                self._start()
 
-            pause, self.pause_state = WindowsKeysHandler.rising_detection(WindowsKeysHandler.is_key_pressed(self.pause_key), self.pause_state)
-            if self.clicking and pause:
-                Autoclicker._pause(self)
+            pause_edge, self.pause_state = WindowsKeysHandler.rising_detection(WindowsKeysHandler.is_key_pressed(self.pause_key), self.pause_state)
+            if self.clicking_event.is_set() and pause_edge:
+                self._pause()
 
-            quit, self.quit_state = WindowsKeysHandler.rising_detection(WindowsKeysHandler.is_key_pressed(self.quit_key), self.quit_state)
-            if self.clicking and quit:
-                Autoclicker._quit(self)
+            quit_edge, self.quit_state = WindowsKeysHandler.rising_detection(WindowsKeysHandler.is_key_pressed(self.quit_key), self.quit_state)
+            if quit_edge:
+                self._quit()
                 break
+        
+        time.sleep(Autoclicker.DEBOUNCE_SLEEP_TIME)
+        click_thread.join() if click_thread.is_alive() else None
 
-            if self.clicking:
-                WindowsKeysHandler.mouse_click()
+    def _click_loop(self):
+        """
+        Continuously performs mouse left-click actions while the clicking event is set.
+        This loop checks for the `clicking_event` flag. If set, it simulates a mouse left button click
+        by calling `WindowsKeysHandler.mouse_left_down()` and `WindowsKeysHandler.mouse_left_up()`, 
+        then waits for a duration determined by `self.timeout` (in milliseconds). If the clicking event 
+        is not set, the loop sleeps for 0.2 seconds before checking again. The loop exits when 
+        `self.quit_event` is set.
+        """
+
+        while not self.quit_event.is_set():
+            if self.clicking_event.is_set():
+                WindowsKeysHandler.mouse_left_down()
+                WindowsKeysHandler.mouse_left_up()
                 time.sleep(0.001 * self.timeout)
+            else:
+                time.sleep(0.2)
 
     def _start(self):
         """
@@ -281,7 +420,7 @@ class Autoclicker:
         """
 
         print("Clicking started.", end="\r")
-        self.clicking = True
+        self.clicking_event.set()
         time.sleep(Autoclicker.DEBOUNCE_SLEEP_TIME)
 
     def _pause(self):
@@ -292,7 +431,7 @@ class Autoclicker:
         """
 
         print("Clicking paused.", end="\r")
-        self.clicking = False
+        self.clicking_event.clear()
         time.sleep(Autoclicker.DEBOUNCE_SLEEP_TIME)
 
     def _quit(self):
@@ -301,7 +440,8 @@ class Autoclicker:
         This method sets the clicking flag to False to halt the autoclicker, displays a message to the user, waits for a predefined debounce time, and calls the cleanup method of the LoggingHandler to release any resources or perform necessary shutdown procedures.
         """
 
-        self.clicking = False
+        self.clicking_event.clear()
+        self.quit_event.set()
         print("\nQuitting...")
         time.sleep(Autoclicker.DEBOUNCE_SLEEP_TIME)
         LoggingHandler.cleanup()
