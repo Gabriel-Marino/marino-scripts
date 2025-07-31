@@ -12,7 +12,7 @@ from typing import Callable
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
-log_file = logging.FileHandler('autoclicker.log', mode='a')
+log_file = logging.FileHandler(re.sub(r'\.py$', '.log', os.path.basename(__file__)), mode='a')
 log_file.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 logger.addHandler(log_file)
 
@@ -118,8 +118,6 @@ def autoclick(timeout: float=50.0, VK_START: int=0x41, VK_PAUSE: int=0x42, VK_QU
             mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
             time.sleep(0.001*timeout)
 
-        else:
-            time.sleep(.2)
 
 
 def get_parser() -> object:
@@ -134,15 +132,15 @@ def get_parser() -> object:
         argparse.ArgumentParser: Configured argument parser for the autoclicker.
     """
     parser = argparse.ArgumentParser(
-        prog=re.sub(r'\.py$', '', os.path.basename(__file__)),
+        prog=os.path.basename(__file__),
         usage="%(prog)s [options]",
         description="A simple auto-clicker script that allows you to automate mouse clicks.",
         epilog="Press 'Ctrl + StartKey' to start/resume clicking, 'PauseKey' to pause, and 'Ctrl + QuitKey' to quit."
     )
     parser.add_argument("--timeout" , type=float, default=42.0, help="Sleep time in milliseconds between clicks.")
     parser.add_argument("--startkey", type=str, default='S', help="Virtual key to start/resume clicking.")
-    parser.add_argument("--pausekey", type=str, default='P', help="Virtual key to pause clicking.")
-    parser.add_argument("--quitkey" , type=str, default='Q', help="Virtual key to quit the autoclicker.")
+    parser.add_argument("--pausekey", type=str, default='Z', help="Virtual key to pause clicking.")
+    parser.add_argument("--quitkey" , type=str, default='X', help="Virtual key to quit the autoclicker.")
 
     return parser
 
