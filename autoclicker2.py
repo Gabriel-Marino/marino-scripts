@@ -462,9 +462,6 @@ def main() -> None:
         Exception: Any exception that occurs during setup or execution is logged and re-raised.
     """
 
-    if sys.platform != "win32":
-        raise RuntimeError("This script is designed to run on Windows only!")
-
     try:
         autoclicker = Autoclicker()
         parser = ParserHandler.get_parser()
@@ -495,4 +492,7 @@ def main() -> None:
         raise
 
 if __name__ == "__main__":
+    if sys.platform != "win32":
+        raise RuntimeError("This script is designed to run on Windows only!")
+
     main()
