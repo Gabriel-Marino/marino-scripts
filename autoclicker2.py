@@ -466,6 +466,7 @@ def main() -> None:
         autoclicker = Autoclicker()
         parser = ParserHandler.get_parser()
         args = parser.parse_args()
+        LoggingHandler.logger.info(f"Parsed arguments: {vars(args)}")
         autoclicker.setup(
             timeout=args.timeout,
             start_key=WindowsKeysHandler.get_virtual_key(args.startkey),
