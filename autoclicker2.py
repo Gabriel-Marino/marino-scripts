@@ -173,13 +173,12 @@ class WindowsKeysHandler:
                 - The second value is the current state (curr) if detection is enabled, or the previous state (prev) if not.
         """
 
-
         if not safemode:
             return curr and not prev, curr
 
         elif safekeyispressed:
             return curr and not prev, curr
-        
+
         return False, prev
 
     @staticmethod
@@ -257,8 +256,14 @@ class WindowsKeysHandler:
 
 class ParserHandler:
 
+    DEFAULT_TIMEOUT = 42.0
+    DEFAULT_START_KEY = 'S'
+    DEFAULT_PAUSE_KEY = 'P'
+    DEFAULT_QUIT_KEY = 'Q'
+    DEFAULT_SAFE_KEY = 0x12  # Virtual key code for generic Alt key,
+
     @staticmethod
-    def _stringToBool(arg: str):
+    def _stringToBool(arg: str) -> bool:
         """
         Converts a string representation of a boolean value to a boolean.
         Args:
@@ -270,28 +275,30 @@ class ParserHandler:
         Raises:
             AttributeError: If the input is not a string or boolean.
         """
-        
+
         if isinstance(arg, bool):
             return arg
+
         if arg.lower() in ('true', '1', 'yes'):
             return True
+
         if arg.lower() in ('false', '0', 'no'):
             return False
 
+        raise ValueError(f"Argument '{arg}' is not interpreted as a boolean value.")
+
+    @staticmethod
+    def _hexToInt(hex) -> int:
+
+        try:
+            if isinstance(hex, str):
+                return int(hex, 16)
+
+        except ValueError:
+            raise argparse.ArgumentTypeError(f"Invalid hexadecimal value: {hex}. Please provide a valid hexadecimal string or integer.")
+
     @staticmethod
     def get_parser() -> argparse.ArgumentParser:
-        """
-        Creates and returns an ArgumentParser for the autoclicker script.
-        The parser defines the following command-line arguments:
-            --timeout   : Sleep time in milliseconds between clicks (float, default: 42.0).
-            --startkey  : Virtual key to start/resume clicking (str, default: 'S').
-            --pausekey  : Virtual key to pause clicking (str, default: 'P').
-            --quitkey   : Virtual key to quit the autoclicker (str, default: 'Q').
-            --safekey   : Virtual key to use in safe mode (int, default: 0x12).
-            --safemode  : Enables safe mode, requiring the safe key to be pressed with start/quit keys (bool, default: True).
-        Returns:
-            argparse.ArgumentParser: Configured argument parser for the autoclicker script.
-        """
 
         parser = argparse.ArgumentParser(
             prog=os.path.basename(__file__),
@@ -300,12 +307,12 @@ class ParserHandler:
             epilog="Press 'StartKey' to start/resume clicking, 'PauseKey' to pause, and 'QuitKey' to quit."
         )
 
-        parser.add_argument("--timeout" , type=float, default=42.0, help="Sleep time in milliseconds between clicks.")
-        parser.add_argument("--startkey", type=str, default='S', help="Virtual key to start/resume clicking.")
-        parser.add_argument("--pausekey", type=str, default='P', help="Virtual key to pause clicking.")
-        parser.add_argument("--quitkey" , type=str, default='Q', help="Virtual key to quit the autoclicker.")
-        parser.add_argument("--safekey" , type=int, default=0x12, help="Virtual key to use in safe mode.")
-        parser.add_argument("--safemode", type=ParserHandler._stringToBool, default=True, help=f"when in safe mode, is required to press the safe key with the start key to start the autoclicker and with the quit key to quit it. This is useful to prevent accidental clicks when the autoclicker is not intended to be running.")
+        parser.add_argument("--timeout" , type=float, default=ParserHandler.DEFAULT_TIMEOUT, help=f"Sleep time in milliseconds between clicks. Default: '{ParserHandler.DEFAULT_TIMEOUT}'.")
+        parser.add_argument("--startkey", type=str, default=ParserHandler.DEFAULT_START_KEY, help=f"Virtual key to start/resume clicking. Default: '{ParserHandler.DEFAULT_START_KEY}'.")
+        parser.add_argument("--pausekey", type=str, default=ParserHandler.DEFAULT_PAUSE_KEY, help=f"Virtual key to pause clicking. Default: '{ParserHandler.DEFAULT_PAUSE_KEY}'.")
+        parser.add_argument("--quitkey" , type=str, default=ParserHandler.DEFAULT_QUIT_KEY, help=f"Virtual key to quit the autoclicker. Default: '{ParserHandler.DEFAULT_QUIT_KEY}'.")
+        parser.add_argument("--safekey" , type=ParserHandler._hexToInt, default=ParserHandler.DEFAULT_SAFE_KEY, help=f"Virtual key to use in safe mode. Default: 0x12 ({WindowsKeysHandler.get_key_name(ParserHandler.DEFAULT_SAFE_KEY)}).")
+        parser.add_argument("--safemode", type=ParserHandler._stringToBool, default=True, help=f"Safe mode is used to prevent unintended behavior, requiring to the safe key to be held to start or quit the script. Default: True.")
 
         return parser
 
@@ -370,7 +377,7 @@ class Autoclicker:
 
     DEBOUNCE_SLEEP_TIME = 0.069
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initializes the autoclicker instance with default configuration.
         Attributes:
@@ -419,7 +426,7 @@ class Autoclicker:
         self.safe_key = safe_key
         self.safe_mode = safemode
 
-    def run(self):
+    def run(self) -> None:
         """
         Starts the autoclicker's main event loop and manages user input for controlling the clicking process.
         This method launches a separate thread to handle the clicking loop, then enters a loop to listen for
@@ -440,7 +447,7 @@ class Autoclicker:
         click_thread = threading.Thread(target=self._click_loop, daemon=True)
         click_thread.start()
 
-        print("Safemode is enabled. Press the safe key to use the start and quit keys.") if self.safe_mode else None
+        print(f"Safemode is enabled. Press the safe key '{WindowsKeysHandler.get_key_name(self.safe_key)}' to use the start and quit keys.") if self.safe_mode else None
         print(f"Press '{WindowsKeysHandler.get_key_name(self.start_key)}' to start/resume clicking, '{WindowsKeysHandler.get_key_name(self.pause_key)}' to pause, and '{WindowsKeysHandler.get_key_name(self.quit_key)}' to quit.")
 
         while not self.quit_event.is_set():
@@ -457,17 +464,17 @@ class Autoclicker:
             if quit_edge:
                 self._quit()
                 break
-        
+
         time.sleep(Autoclicker.DEBOUNCE_SLEEP_TIME)
         click_thread.join() if click_thread.is_alive() else None
 
-    def _click_loop(self):
+    def _click_loop(self) -> None:
         """
         Continuously performs mouse left-click actions while the clicking event is set.
         This loop checks for the `clicking_event` flag. If set, it simulates a mouse left button click
-        by calling `WindowsKeysHandler.mouse_left_down()` and `WindowsKeysHandler.mouse_left_up()`, 
-        then waits for a duration determined by `self.timeout` (in milliseconds). If the clicking event 
-        is not set, the loop sleeps for 0.2 seconds before checking again. The loop exits when 
+        by calling `WindowsKeysHandler.mouse_left_down()` and `WindowsKeysHandler.mouse_left_up()`,
+        then waits for a duration determined by `self.timeout` (in milliseconds). If the clicking event
+        is not set, the loop sleeps for 0.2 seconds before checking again. The loop exits when
         `self.quit_event` is set.
         """
 
@@ -479,7 +486,7 @@ class Autoclicker:
             else:
                 time.sleep(0.2)
 
-    def _start(self):
+    def _start(self) -> None:
         """
         Starts the autoclicking process by setting the clicking flag to True and printing a status message.
         Waits for a debounce period defined by DEBOUNCE_SLEEP_TIME before proceeding.
@@ -494,7 +501,7 @@ class Autoclicker:
         self.clicking_event.set()
         time.sleep(Autoclicker.DEBOUNCE_SLEEP_TIME)
 
-    def _pause(self):
+    def _pause(self) -> None:
         """
         Pauses the autoclicking process.
         This method sets the clicking flag to False, prints a message indicating that clicking is paused,
@@ -505,7 +512,7 @@ class Autoclicker:
         self.clicking_event.clear()
         time.sleep(Autoclicker.DEBOUNCE_SLEEP_TIME)
 
-    def _quit(self):
+    def _quit(self) -> None:
         """
         Stops the autoclicker, prints a quitting message, waits for a debounce period, and performs cleanup operations.
         This method sets the clicking flag to False to halt the autoclicker, displays a message to the user, waits for a predefined debounce time, and calls the cleanup method of the LoggingHandler to release any resources or perform necessary shutdown procedures.
