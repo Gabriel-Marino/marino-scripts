@@ -8,14 +8,14 @@ from pandas import DataFrame
 from requests import get
 from time import sleep, ctime
 
-def kill():
+def kill(pid: int) -> str:
 
     if os.name == "nt":
-        return f'taskkill /PID {os.getpid()} /F'
+        return f'taskkill /PID {pid} /F'
 
-    return f'kill -9 {os.getpid()}'
+    return f'kill -9 {pid}'
 
-def clear():
+def clear() -> str:
 
     if os.name == "nt":
         return 'cls'
@@ -35,13 +35,14 @@ if __name__ == "__main__":
 
             list(map(lambda data: list(map(lambda info: data[0].append(info[data[1]]) if info['seq'] in '1 2'.split(' ') else 0, json_data['cand'])), sep_data))
 
-            os.system(clear())     #   limpa o console antes de imprimir dados novos.
-            print(ctime())      #   Imprime a data e hora atual.
+            os.system(clear())    #   limpa o console antes de imprimir dados novos.
+            print(ctime())        #   Imprime a data e hora atual.
             print("Última atualização: {}".format(json_data['ht']))                                                                             #   Emprime o momento da última atualização enviada pelo TSE.
             print("Foram apuradas {}% urnas.".format(poll_percentage))                                                                          #   Emprime a quantidade de urnas que já foram apuradas em porcentagem.
             print(DataFrame(list(zip(sep_data[0][0], sep_data[1][0], sep_data[2][0])), columns=['Candidato', '# votos', 'Porcentagem']))        #   Cria a tabela para mostrar os dados mais organizadamente.
 
-            os.system(kill()) if poll_percentage >= 99 else sleep(300)    #   Para o laço caso tenha apurado 99% das urnas, caso contrário espera por 5 minutos antes de imprimir os dados novos.
+            os.system(kill(os.getpid())) if poll_percentage >= 99 else sleep(300)    #   Para o laço caso tenha apurado 99% das urnas, caso contrário espera por 5 minutos antes de imprimir os dados novos.
 
     except Exception as e:
         print(f"An exception occured: {e}")
+
