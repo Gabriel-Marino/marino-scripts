@@ -247,12 +247,17 @@ class ParserHandler(WindowsKeysHandler):
             epilog="Press 'StartKey' to start/resume clicking, 'PauseKey' to pause, and 'QuitKey' to quit."
         )
 
-        parser.add_argument("--timeout" , type=float, default=self.DEFAULT_TIMEOUT, help=f"Sleep time in milliseconds between clicks. Default: '{self.DEFAULT_TIMEOUT}'.")
-        parser.add_argument("--startkey", type=str, default=self.DEFAULT_START_KEY, help=f"Virtual key to start/resume clicking. Default: '{self.DEFAULT_START_KEY}'.")
-        parser.add_argument("--pausekey", type=str, default=self.DEFAULT_PAUSE_KEY, help=f"Virtual key to pause clicking. Default: '{self.DEFAULT_PAUSE_KEY}'.")
-        parser.add_argument("--quitkey" , type=str, default=self.DEFAULT_QUIT_KEY, help=f"Virtual key to quit the autoclicker. Default: '{self.DEFAULT_QUIT_KEY}'.")
-        parser.add_argument("--safekey" , type=self._hexToInt, default=self.DEFAULT_SAFE_KEY, help=f"Virtual key to use in safe mode. Default: 0x12 ({super().get_key_name(self.DEFAULT_SAFE_KEY)}).")
-        parser.add_argument("--safemode", type=self._stringToBool, default=True, help=f"Safe mode is used to prevent unintended behavior, requiring to the safe key to be held to start or quit the script. Default: True.")
+        ARGS=(
+            {"name": 'timeout' , "type": float, "d_val": self.DEFAULT_TIMEOUT, "hint": f"Sleep time in milliseconds between clicks. Default: '{self.DEFAULT_TIMEOUT}'."},
+            {"name": 'startkey', "type": str, "d_val": self.DEFAULT_START_KEY, "hint": f"Virtual key to start/resume clicking. Default: '{self.DEFAULT_START_KEY}'."},
+            {"name": 'pausekey', "type": str, "d_val": self.DEFAULT_PAUSE_KEY, "hint": f"Virtual key to pause clicking. Default: '{self.DEFAULT_PAUSE_KEY}'."},
+            {"name": 'quitkey' , "type": str, "d_val": self.DEFAULT_QUIT_KEY, "hint": f"Virtual key to quit the autoclicker. Default: '{self.DEFAULT_QUIT_KEY}'."},
+            {"name": 'safekey' , "type": self._hexToInt, "d_val": self.DEFAULT_SAFE_KEY, "hint": f"Virtual key to use in safe mode. Default: 0x12 ({super().get_key_name(self.DEFAULT_SAFE_KEY)})."},
+            {"name": 'safemode', "type": self._stringToBool, "d_val": True, "hint": f"Safe mode is used to prevent unintended behavior, requiring to the safe key to be held to start or quit the script. Default: True."}
+        )
+
+        for arg in ARGS:
+            parser.add_argument(f"--{arg['name']}", type=arg['type'], default=arg['d_val'], help=arg['hint'])
 
         return parser
 
