@@ -10,18 +10,9 @@ import traceback
 
 import ctypes.wintypes as w
 
-class MOUSEINPUT(ctypes.Structure):
-    """
-    Represents the MOUSEINPUT structure used by the Windows API for synthesizing mouse input events.
+from collections import Counter
 
-    Attributes:
-        dx (w.LONG): The absolute position of the mouse, or the amount of motion since the last event, depending on the value of dwFlags.
-        dy (w.LONG): The absolute position of the mouse, or the amount of motion since the last event, depending on the value of dwFlags.
-        mouseData (w.DWORD): If dwFlags contains MOUSEEVENTF_WHEEL, then mouseData specifies the amount of wheel movement. Otherwise, it may specify X button information.
-        dwFlags (w.DWORD): A set of bit flags that specify various aspects of mouse motion and button clicks.
-        time (w.DWORD): The time stamp for the event, in milliseconds. If this parameter is 0, the system will provide its own time stamp.
-        dwExtraInfo (ctypes.c_ulonglong): An additional value associated with the mouse event.
-    """
+class MOUSEINPUT(ctypes.Structure):
 
     _fields_ = [
         ("dx", w.LONG),
@@ -33,26 +24,12 @@ class MOUSEINPUT(ctypes.Structure):
     ]
 
 class INPUTUNION(ctypes.Union):
-    """
-    A ctypes.Union subclass representing the INPUTUNION structure used in Windows API input simulation.
-
-    Attributes:
-        mi (MOUSEINPUT): Represents mouse input data for the union. This field is used when simulating mouse events.
-    """
 
     _fields_ = [
         ("mi", MOUSEINPUT)
     ]
 
 class INPUT(ctypes.Structure):
-    """
-    Represents a generic input event structure for use with Windows API functions.
-
-    Attributes:
-        type (w.DWORD): Specifies the type of the input event (e.g., mouse, keyboard, hardware).
-        union (INPUTUNION): A union containing the information about the input event, 
-            which varies depending on the type specified.
-    """
 
     _fields_ = [
         ("type", w.DWORD),
@@ -60,41 +37,12 @@ class INPUT(ctypes.Structure):
     ]
 
 class WindowsKeysHandler:
-    """
-    WindowsKeysHandler
-    A utility class for handling keyboard and mouse input events on Windows using the ctypes library.
-    Provides static methods to check key states, convert characters to virtual key codes, retrieve key names,
-    detect rising edges in boolean signals, and simulate mouse left-click events using the Windows API.
-    Attributes:
-        u32: Reference to the user32 DLL loaded via ctypes.
-        GetAsyncKeyState: Function pointer to user32.GetAsyncKeyState for checking key states.
-        VkKeyScanW: Function pointer to user32.VkKeyScanW for converting characters to virtual key codes.
-        GetKeyNameTextW: Function pointer to user32.GetKeyNameTextW for retrieving key names.
-        MapVirtualKeyW: Function pointer to user32.MapVirtualKeyW for mapping virtual key codes.
-        send_input: Function pointer to user32.SendInput for simulating input events.
-        KEY_PRESS_MASK (int): Bitmask for detecting key press state.
-        SHIFT_KEY_MASK (int): Bitmask for extracting virtual key code from VkKeyScanW result.
-        MOUSEEVENTF_LEFTDOWN (int): Flag for mouse left button down event.
-        MOUSEEVENTF_LEFTUP (int): Flag for mouse left button up event.
-    Methods:
-        is_key_pressed(virtual_key: int) -> bool
-        get_virtual_key(key: str) -> int
-        get_key_name(virtual_key: int) -> str
-        rising_detection(curr: bool, prev: bool) -> list[bool, bool]
-        mouse_left_down()
-            Simulates a mouse left button down event.
-        mouse_left_up()
-            Simulates a mouse left button up event.
-        mouse_click()
-            Simulates a mouse left-click event (down and up).
-    """
 
     u32 = ctypes.windll.user32
     GetAsyncKeyState = u32.GetAsyncKeyState
     VkKeyScanW = u32.VkKeyScanW
     GetKeyNameTextW = u32.GetKeyNameTextW
     MapVirtualKeyW = u32.MapVirtualKeyW
-    # mouse_event = u32.mouse_event
     send_input = u32.SendInput
 
     KEY_PRESS_MASK = 0x8000
@@ -105,15 +53,7 @@ class WindowsKeysHandler:
     MOUSEEVENTF_LEFTUP = 0x0004
 
     def is_key_pressed(self, virtual_key: int) -> bool:
-        """
-        Checks if a specific virtual key is currently pressed.
 
-        Args:
-            virtual_key (int): The virtual key code to check.
-
-        Returns:
-            bool: True if the specified key is pressed, False otherwise.
-        """
         try:
             return self.GetAsyncKeyState(virtual_key) & self.KEY_PRESS_MASK != 0
 
@@ -121,15 +61,6 @@ class WindowsKeysHandler:
             raise ValueError(f"Invalid virtual key code: {virtual_key}. Please provide a valid hexadecimal key code.")
 
     def get_virtual_key(self, key: str) -> int:
-        """
-        Converts a single character key to its corresponding virtual key code.
-        Args:
-            key (str): A single character string representing the key to convert.
-        Returns:
-            int: The virtual key code corresponding to the given character.
-        Raises:
-            ValueError: If the input key is not a single character.
-        """
 
         if len(key) != 1:
             raise ValueError(f"Key '{key}' must be a single character.")
@@ -137,15 +68,6 @@ class WindowsKeysHandler:
         return self.VkKeyScanW(ord(key)) & self.SHIFT_KEY_MASK
 
     def get_key_name(self, virtual_key: int) -> str:
-        """
-        Retrieves the human-readable name of a virtual key code.
-        Args:
-            virtual_key (int): The virtual key code for which to retrieve the name.
-        Returns:
-            str: The name of the virtual key.
-        Raises:
-            ValueError: If the name for the given virtual key cannot be retrieved.
-        """
 
         l_param = self.MapVirtualKeyW(virtual_key, 0) << 16
         buf = ctypes.create_unicode_buffer(64)
@@ -154,29 +76,6 @@ class WindowsKeysHandler:
             raise ValueError(f"Could not retrieve name for virtual key {virtual_key}.")
         
         return buf.value
-
-    @staticmethod
-    def rising_detection(curr: bool, prev: bool, safemode: bool, safekeyispressed: bool) -> list[bool]:
-        """
-        Detects a rising edge in a boolean signal, with optional safemode and safekey logic.
-        Args:
-            curr (bool): The current boolean state.
-            prev (bool): The previous boolean state.
-            safemode (bool): If True, rising edge detection is only enabled when the safekey is pressed.
-            safekeyispressed (bool): Indicates whether the safekey is currently pressed.
-        Returns:
-            list[bool]: A list containing two boolean values:
-                - The first value is True if a rising edge is detected (curr is True and prev is False), otherwise False.
-                - The second value is the current state (curr) if detection is enabled, or the previous state (prev) if not.
-        """
-
-        if not safemode:
-            return curr and not prev, curr
-
-        elif safekeyispressed:
-            return curr and not prev, curr
-
-        return False, prev
 
     def mouse_send_input(self, dx: w.LONG, dy: w.LONG, data: w.DWORD, flags: w.DWORD, time: w.DWORD, extra_info: ctypes.c_ulonglong) -> int:
 
@@ -193,6 +92,17 @@ class WindowsKeysHandler:
 
         return self.send_input(1, ctypes.byref(input), ctypes.sizeof(input))
 
+    @staticmethod
+    def rising_detection(curr: bool, prev: bool, safemode: bool, safekeyispressed: bool) -> list[bool]:
+
+        if not safemode:
+            return curr and not prev, curr
+
+        elif safekeyispressed:
+            return curr and not prev, curr
+
+        return False, prev
+
 class ParserHandler(WindowsKeysHandler):
 
     DEFAULT_TIMEOUT = 42.0
@@ -201,30 +111,39 @@ class ParserHandler(WindowsKeysHandler):
     DEFAULT_QUIT_KEY = 'Q'
     DEFAULT_SAFE_KEY = 0x12  # Virtual key code for generic Alt key,
 
-    @staticmethod
-    def _stringToBool(arg: str) -> bool:
-        """
-        Converts a string representation of a boolean value to a boolean.
-        Args:
-            arg (str): The string to convert. Accepts 'true', '1', 'yes' for True,
-                and 'false', '0', 'no' for False (case-insensitive). If a boolean is passed,
-                it is returned as is.
-        Returns:
-            bool: The boolean value corresponding to the input string or boolean.
-        Raises:
-            AttributeError: If the input is not a string or boolean.
-        """
+    def __init__(self):
 
-        if isinstance(arg, bool):
-            return arg
+        super().__init__()
 
-        if arg.lower() in ('true', '1', 'yes'):
-            return True
+        self.parser = argparse.ArgumentParser(
+            prog=os.path.relpath(__file__),
+            usage="%(prog)s [options]",
+            description="A simple auto-clicker script that allows you to automate mouse clicks.",
+            epilog="Press 'StartKey' to start/resume clicking, 'PauseKey' to pause, and 'QuitKey' to quit.",
+            formatter_class=argparse.RawTextHelpFormatter,
+            allow_abbrev=False
+        )
+        self._setup_args()
 
-        if arg.lower() in ('false', '0', 'no'):
-            return False
+    def _setup_args(self):
 
-        raise ValueError(f"Argument '{arg}' is not interpreted as a boolean value.")
+        ARGS=(
+            {"short": 'to', "name": 'timeout' , "type": float, "d_val": self.DEFAULT_TIMEOUT, "hint": f"Sleep time in milliseconds between clicks. Default: '{self.DEFAULT_TIMEOUT}'"},
+            {"short": 'sk', "name": 'startkey', "type": str, "d_val": self.DEFAULT_START_KEY, "hint": f"Virtual key to start/resume clicking. Default: '{self.DEFAULT_START_KEY}'"},
+            {"short": 'pk', "name": 'pausekey', "type": str, "d_val": self.DEFAULT_PAUSE_KEY, "hint": f"Virtual key to pause clicking. Default: '{self.DEFAULT_PAUSE_KEY}'"},
+            {"short": 'qk', "name": 'quitkey' , "type": str, "d_val": self.DEFAULT_QUIT_KEY, "hint": f"Virtual key to quit the autoclicker. Default: '{self.DEFAULT_QUIT_KEY}'"},
+            {"short": 'sf', "name": 'safekey' , "type": self._hexToInt, "d_val": self.DEFAULT_SAFE_KEY, "hint": f"Virtual key to use in safe mode. Default: 0x12 ({self.get_key_name(self.DEFAULT_SAFE_KEY)})"}
+        )
+
+        self.parser.add_argument('--no-safemode', dest='safemode', action='store_false', help=f"Disable safe mode. Safe mode is used to prevent unintended behavior, requiring to the safe key to be held to start or quit the script")
+        self.parser.add_argument('--allow-duplicates', dest='duplicates', action='store_true', help="Allow using the same key for multiple actions (not recommended)")
+
+        for arg in ARGS:
+            self.parser.add_argument(f"-{arg['short']}", f"--{arg['name']}", type=arg['type'], default=arg['d_val'], help=arg['hint'])
+
+    def get_parser(self) -> argparse.ArgumentParser:
+
+        return self.parser
 
     @staticmethod
     def _hexToInt(hex) -> int:
@@ -238,106 +157,28 @@ class ParserHandler(WindowsKeysHandler):
         except ValueError:
             raise argparse.ArgumentTypeError(f"Invalid hexadecimal value: {hex}. Please provide a valid hexadecimal string or integer.")
 
-    def get_parser(self) -> argparse.ArgumentParser:
+class LoggingHandler(ParserHandler):
 
-        parser = argparse.ArgumentParser(
-            prog=os.path.basename(__file__),
-            usage="%(prog)s [options]",
-            description="A simple auto-clicker script that allows you to automate mouse clicks.",
-            epilog="Press 'StartKey' to start/resume clicking, 'PauseKey' to pause, and 'QuitKey' to quit."
-        )
+    def __init__(self):
 
-        ARGS=(
-            {"name": 'timeout' , "type": float, "d_val": self.DEFAULT_TIMEOUT, "hint": f"Sleep time in milliseconds between clicks. Default: '{self.DEFAULT_TIMEOUT}'."},
-            {"name": 'startkey', "type": str, "d_val": self.DEFAULT_START_KEY, "hint": f"Virtual key to start/resume clicking. Default: '{self.DEFAULT_START_KEY}'."},
-            {"name": 'pausekey', "type": str, "d_val": self.DEFAULT_PAUSE_KEY, "hint": f"Virtual key to pause clicking. Default: '{self.DEFAULT_PAUSE_KEY}'."},
-            {"name": 'quitkey' , "type": str, "d_val": self.DEFAULT_QUIT_KEY, "hint": f"Virtual key to quit the autoclicker. Default: '{self.DEFAULT_QUIT_KEY}'."},
-            {"name": 'safekey' , "type": self._hexToInt, "d_val": self.DEFAULT_SAFE_KEY, "hint": f"Virtual key to use in safe mode. Default: 0x12 ({super().get_key_name(self.DEFAULT_SAFE_KEY)})."},
-            {"name": 'safemode', "type": self._stringToBool, "d_val": True, "hint": f"Safe mode is used to prevent unintended behavior, requiring to the safe key to be held to start or quit the script. Default: True."}
-        )
+        super().__init__()
 
-        for arg in ARGS:
-            parser.add_argument(f"--{arg['name']}", type=arg['type'], default=arg['d_val'], help=arg['hint'])
-
-        return parser
-
-class LoggingHandler(WindowsKeysHandler):
-    """
-    LoggingHandler is a utility class responsible for configuring and managing application-wide logging.
-    Class Attributes:
-        logger (logging.Logger): The root logger configured to log DEBUG and higher level messages to a file.
-            The log file is named after the current script, with a '.log' extension.
-    Methods:
-        cleanup() -> None:
-    """
-
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-    log_file = logging.FileHandler(re.sub(r'\.py$', '.log', os.path.basename(__file__)), mode='a')
-    log_file.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-    logger.addHandler(log_file)
-
-    def cleanup(self) -> None:
-        """
-        Performs cleanup operations by releasing the left mouse button, logging the cleanup event,
-        shutting down the logging system, and printing a confirmation message.
-        """
-
-        TEXT = "Resources are cleaned up."
-        super().mouse_send_input(0, 0, 0, super().MOUSEEVENTF_LEFTUP, 0, 0)
-        self.logger.info(TEXT)
-        logging.shutdown()
-        print(TEXT)
+        self.need_cleanup = True
+        self.logger = logging.getLogger()
+        self.logger.setLevel(logging.DEBUG)
+        self.log_file = logging.FileHandler(re.sub(r'\.py$', '.log', os.path.relpath(__file__)), mode='a')
+        self.log_file.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        self.logger.addHandler(self.log_file)
 
 class Autoclicker(LoggingHandler):
-    """
-    Autoclicker is a configurable class for automating mouse click actions on Windows systems.
-    This class provides methods to start, pause, and stop an autoclicking process, with support for customizable hotkeys and an optional safe mode that requires a modifier key for activation. The autoclicking runs in a background thread and can be controlled via user-defined keyboard shortcuts. The class is designed to be thread-safe and includes debounce logic to prevent accidental rapid toggling of states.
-        DEBOUNCE_SLEEP_TIME (float): Time in seconds to wait after key events to prevent rapid toggling.
-        clicking_event (threading.Event): Event flag to control the clicking loop.
-        quit_event (threading.Event): Event flag to signal quitting the application.
-        timeout (float): Time interval between clicks in milliseconds.
-        start_key (int): Virtual key code to start clicking.
-        pause_key (int): Virtual key code to pause clicking.
-        quit_key (int): Virtual key code to quit the application.
-        safe_key (int): Virtual key code for the safe mode key (e.g., Alt key).
-        start_state (bool): State flag for the start key (for edge detection).
-        pause_state (bool): State flag for the pause key (for edge detection).
-        quit_state (bool): State flag for the quit key (for edge detection).
-    Methods:
-        __init__():
-        setup(timeout: float, start_key: int, pause_key: int, quit_key: int, safe_key: int, safemode: bool) -> None:
-        run():
-            Starts the autoclicker's main event loop, handling user input for controlling the clicking process.
-            Blocks until the quit event is triggered.
-        _click_loop():
-        _start():
-            Starts the autoclicking process by setting the clicking flag and printing a status message.
-        _pause():
-            Pauses the autoclicking process and prints a status message.
-        _quit():
-            Stops the autoclicker, prints a quitting message, and performs cleanup operations.
-    """
 
     DEBOUNCE_SLEEP_TIME = 0.069
 
     def __init__(self) -> None:
-        """
-        Initializes the autoclicker instance with default configuration.
-        Attributes:
-            clicking_event (threading.Event): Event to control the clicking loop.
-            quit_event (threading.Event): Event to signal quitting the application.
-            timeout (float): Time interval between clicks in seconds.
-            start_key (int): Virtual key code to start clicking (default: 0x41).
-            pause_key (int): Virtual key code to pause clicking (default: 0x42).
-            quit_key (int): Virtual key code to quit the application (default: 0x43).
-            safe_mode (bool): Enables or disables safe mode for extra safety.
-            safe_key (int): Virtual key code for the safe mode key (default: 0x12, Alt key).
-            start_state (bool): State flag for the start key.
-            pause_state (bool): State flag for the pause key.
-            quit_state (bool): State flag for the quit key.
-        """
 
+        super().__init__()
+
+        self.click_thread = None
         self.clicking_event = threading.Event()
         self.quit_event = threading.Event()
 
@@ -349,19 +190,7 @@ class Autoclicker(LoggingHandler):
         self.safe_key = 0x12 # Virtual key code for generic Alt key, used for safe mode checks.
         self.start_state = self.pause_state = self.quit_state = False
 
-    def setup(self, timeout: float, start_key: int, pause_key: int, quit_key: int, safe_key: int, safemode: bool) -> None:
-        """
-        Configures the autoclicker with the specified settings.
-        Args:
-            timeout (float): The delay between clicks in seconds.
-            start_key (int): The key code to start the autoclicker.
-            pause_key (int): The key code to pause the autoclicker.
-            quit_key (int): The key code to quit the autoclicker.
-            safe_key (int): The key code to activate the safety mechanism.
-            safemode (bool): Enables or disables safe mode.
-        Returns:
-            None
-        """
+    def setup(self, timeout: float, start_key: int, pause_key: int, quit_key: int, safe_key: int, safemode: bool, allow_duplicate: bool = False) -> None:
 
         self.timeout = timeout
         self.start_key = start_key
@@ -370,120 +199,97 @@ class Autoclicker(LoggingHandler):
         self.safe_key = safe_key
         self.safe_mode = safemode
 
+        if not timeout > 0:
+            raise ValueError(f'{self.timeout} is not a valid value. Timeout must be a positive real number (unsigned float). And it is advised to be greater than 10ms')
+
+        if any([x for _, x in Counter([value for key, value in self.__dict__.items() if key.endswith('_key')]).items() if x != 1]) and not allow_duplicate:
+            raise ValueError('It is not advised to use the same key for two different actions')
+
     def run(self) -> None:
-        """
-        Starts the autoclicker's main event loop and manages user input for controlling the clicking process.
-        This method launches a separate thread to handle the clicking loop, then enters a loop to listen for
-        key events to start, pause, or quit the autoclicker. Key detection supports an optional safe mode,
-        requiring a safety key to be held for other controls to activate.
-        - Starts the click loop in a background thread.
-        - Prints instructions for user controls, including safe mode if enabled.
-        - Monitors for rising edge key events to:
-            - Start/resume clicking (`start_key`)
-            - Pause clicking (`pause_key`)
-            - Quit the autoclicker (`quit_key`)
-        - Exits the loop and joins the click thread upon quitting.
-        The method blocks until the quit event is triggered.
-        Raises:
-            None
-        """
 
-        click_thread = threading.Thread(target=self._click_loop, daemon=True)
-        click_thread.start()
+        self.click_thread = threading.Thread(target=self._click_loop)
+        self.click_thread.start()
 
-        print(f"Safemode is enabled. Press the safe key '{super().get_key_name(self.safe_key)}' to use the start and quit keys.") if self.safe_mode else None
-        print(f"Press '{super().get_key_name(self.start_key)}' to start/resume clicking, '{super().get_key_name(self.pause_key)}' to pause, and '{super().get_key_name(self.quit_key)}' to quit.")
+        print(f"Safemode is enabled. Press the safe key '{self.get_key_name(self.safe_key)}' to use the start and quit keys.") if self.safe_mode else None
+        print(f"Press '{self.get_key_name(self.start_key)}' to start/resume clicking, '{self.get_key_name(self.pause_key)}' to pause, and '{self.get_key_name(self.quit_key)}' to quit.")
 
         while not self.quit_event.is_set():
-            start_edge, self.start_state = super().rising_detection(super().is_key_pressed(self.start_key), self.start_state, self.safe_mode, super().is_key_pressed(self.safe_key))
+            start_edge, self.start_state = self.rising_detection(self.is_key_pressed(self.start_key), self.start_state, self.safe_mode, self.is_key_pressed(self.safe_key))
             if not self.clicking_event.is_set() and start_edge:
                 self._start()
 
             # I meant the safemode to only prevent unintended starting and quitting, not pausing, so the pause key gets True in the safekeyispressed argument regardless of the safemode state.
-            pause_edge, self.pause_state = super().rising_detection(super().is_key_pressed(self.pause_key), self.pause_state, self.safe_mode, True)
+            pause_edge, self.pause_state = self.rising_detection(self.is_key_pressed(self.pause_key), self.pause_state, self.safe_mode, True)
             if self.clicking_event.is_set() and pause_edge:
                 self._pause()
 
-            quit_edge, self.quit_state = super().rising_detection(super().is_key_pressed(self.quit_key), self.quit_state, self.safe_mode, super().is_key_pressed(self.safe_key))
+            quit_edge, self.quit_state = self.rising_detection(self.is_key_pressed(self.quit_key), self.quit_state, self.safe_mode, self.is_key_pressed(self.safe_key))
             if quit_edge:
                 self._quit()
                 break
 
         time.sleep(self.DEBOUNCE_SLEEP_TIME)
-        click_thread.join() if click_thread.is_alive() else None
+        if self.click_thread.is_alive():
+            self.click_thread.join()
 
     def _click_loop(self) -> None:
-        """
-        Continuously performs mouse left-click actions while the clicking event is set.
-        This loop checks for the `clicking_event` flag. If set, it simulates a mouse left button click
-        by calling `WindowsKeysHandler.mouse_left_down()` and `WindowsKeysHandler.mouse_left_up()`,
-        then waits for a duration determined by `self.timeout` (in milliseconds). If the clicking event
-        is not set, the loop sleeps for 0.2 seconds before checking again. The loop exits when
-        `self.quit_event` is set.
-        """
 
         while not self.quit_event.is_set():
             if self.clicking_event.is_set():
-                super().mouse_send_input(0, 0, 0, super().MOUSEEVENTF_LEFTDOWN | super().MOUSEEVENTF_LEFTUP, 0, 0)
+                self.mouse_send_input(0, 0, 0, self.MOUSEEVENTF_LEFTDOWN | self.MOUSEEVENTF_LEFTUP, 0, 0)
                 time.sleep(0.001 * self.timeout)
             else:
                 time.sleep(0.2)
 
     def _start(self) -> None:
-        """
-        Starts the autoclicking process by setting the clicking flag to True and printing a status message.
-        Waits for a debounce period defined by DEBOUNCE_SLEEP_TIME before proceeding.
-
-        Side Effects:
-            - Sets self.clicking to True.
-            - Prints "Clicking started." to the console.
-            - Pauses execution for a short debounce period.
-        """
 
         print("Clicking started.", end="\r")
         self.clicking_event.set()
         time.sleep(self.DEBOUNCE_SLEEP_TIME)
 
     def _pause(self) -> None:
-        """
-        Pauses the autoclicking process.
-        This method sets the clicking flag to False, prints a message indicating that clicking is paused,
-        and waits for a debounce period defined by DEBOUNCE_SLEEP_TIME to prevent rapid toggling.
-        """
 
         print("Clicking paused.", end="\r")
         self.clicking_event.clear()
         time.sleep(self.DEBOUNCE_SLEEP_TIME)
 
     def _quit(self) -> None:
-        """
-        Stops the autoclicker, prints a quitting message, waits for a debounce period, and performs cleanup operations.
-        This method sets the clicking flag to False to halt the autoclicker, displays a message to the user, waits for a predefined debounce time, and calls the cleanup method of the LoggingHandler to release any resources or perform necessary shutdown procedures.
-        """
 
         self.clicking_event.clear()
         self.quit_event.set()
         print("\nQuitting...")
         time.sleep(self.DEBOUNCE_SLEEP_TIME)
-        super().cleanup()
+        self.cleanup()
+
+    def cleanup(self) -> None:
+
+        if not self.need_cleanup:
+            return
+        
+        if self.click_thread and self.click_thread.is_alive():
+            self.click_thread.join()
+
+        self.mouse_send_input(0, 0, 0, self.MOUSEEVENTF_LEFTUP, 0, 0)
+
+        self.parser.exit()
+
+        TEXT = "Resources are cleaned up."
+
+        self.logger.info(TEXT)
+        logging.shutdown()
+
+        print(TEXT)
+
+        self.need_cleanup = False
 
 def main() -> None:
-    """
-    Main entry point for the autoclicker application.
-    This function initializes the Autoclicker, parses command-line arguments,
-    sets up the autoclicker with the provided options, and starts its execution.
-    It handles keyboard interrupts gracefully and logs any exceptions that occur,
-    providing traceback information and ensuring proper cleanup of logging resources.
-    Raises:
-        Exception: Re-raises any unexpected exceptions after logging and cleanup.
-    """
+
+    autoclicker = None
 
     try:
         autoclicker = Autoclicker()
-        parserHandler = ParserHandler()
 
-
-        parser = parserHandler.get_parser()
+        parser = autoclicker.get_parser()
         args = parser.parse_args()
         autoclicker.logger.info(f"Parsed arguments: {vars(args)}")
         autoclicker.setup(
@@ -492,7 +298,8 @@ def main() -> None:
             pause_key=autoclicker.get_virtual_key(args.pausekey),
             quit_key=autoclicker.get_virtual_key(args.quitkey),
             safe_key=args.safekey,
-            safemode=args.safemode
+            safemode=args.safemode,
+            allow_duplicate=args.duplicates
         )
         autoclicker.run()
 
@@ -504,17 +311,27 @@ def main() -> None:
     except Exception as e:
         print(f"\n An exception occurred: {e}.")
         tb = traceback.extract_tb(e.__traceback__)
-        if tb:
-            filename, line, func, text = tb[-1]
-            log_path = getattr(autoclicker.log_file, 'baseFilename', "something very unexpected happened at the point I can't even explain why there's not a log file.")
-            print(f"File: {filename}, line no.: {line}.\nCheck the complete traceback at: {log_path}.\n")
+        if autoclicker is not None:
+            if tb:
+                filename, line, func, text = tb[-1]
+                log_path = getattr(autoclicker.log_file, 'baseFilename', "something very unexpected happened at the point I can't even explain why there's not a log file.")
+                print(f"File: {filename}, line no.: {line}.\nCheck the complete traceback at: {log_path}.\n")
 
-        autoclicker.logger.error("An exception occurred!", exc_info=True)
-        logging.shutdown()
+            autoclicker.logger.error("An exception occurred!", exc_info=True)
+            logging.shutdown()
+
+        else:
+            print("Autoclicker was not instantiated.")
+
         raise
+
+    finally:
+        if autoclicker is not None:
+            autoclicker.cleanup()
 
 if __name__ == "__main__":
     if sys.platform != "win32":
         raise RuntimeError("This script is designed to run on Windows only!")
 
+    os.system('cls')
     main()
