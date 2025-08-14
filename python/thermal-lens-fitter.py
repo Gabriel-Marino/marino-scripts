@@ -82,7 +82,7 @@ def thermal_lens_light_intensity_shen_model(t: float, tc: float, z1: float, z2: 
     return thermal_lens_light_intensity_shen_model_def(t, tc, m_def(gaussian_laser_beam_profile_def(z1, 0, zc_def(rp0, lp), rp0), re0), V_def(z1, z2, zc_def(rp0, lp)), th)
 
 
-def fitter(model_func: callable, params_to_fit: dict[str, dict[float, bool]], path_to_data: str, xname: str = 't', yname: str = 'y_label'):
+def fitter(model_func: callable, params_to_fit: dict[str, dict[float, bool]], path_to_data: str, xname: str, yname: str = 'y_label'):
 
     data = np.loadtxt(path_to_data)
     x_data = data[:,0]
@@ -104,7 +104,7 @@ def fitter(model_func: callable, params_to_fit: dict[str, dict[float, bool]], pa
     plt.scatter(x_data, y_data)
     plt.plot(x_data, res.best_fit, color='red', label='fitted curve')
     plt.legend()
-    plt.xlabel(xname)
+    plt.xlabel(xname + '-coordinate')
     plt.ylabel(yname)
     plt.title(re.sub(r'\.(dat|csv)$', '', os.path.basename(path_to_data)))
     plt.show()
@@ -142,3 +142,4 @@ if __name__ == '__main__':
 
     thermal_lens_test()
     beam_profile_test()
+
