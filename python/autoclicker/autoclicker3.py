@@ -23,18 +23,13 @@ class MOUSEINPUT(ctypes.Structure):
         ("dwExtraInfo", ctypes.c_ulonglong)
     ]
 
-class INPUTUNION(ctypes.Union):
-
-    _fields_ = [
-        ("mi", MOUSEINPUT)
-    ]
-
 class INPUT(ctypes.Structure):
+    class _INPUT_UNION(ctypes.Union):
+        _fields_ = [("mi", MOUSEINPUT)]
 
-    _fields_ = [
-        ("type", w.DWORD),
-        ("union", INPUTUNION)
-    ]
+    _anonymous_ = ("u",)
+    _fields_ = [("type", w.DWORD), ("u", _INPUT_UNION)]
+
 
 class WindowsKeysHandler:
 
@@ -64,8 +59,13 @@ class WindowsKeysHandler:
 
         if len(key) != 1:
             raise ValueError(f"Key '{key}' must be a single character.")
-    
-        return self.VkKeyScanW(ord(key)) & self.SHIFT_KEY_MASK
+
+        vk = self.VkKeyScanW(ord(key)) & self.SHIFT_KEY_MASK
+
+        if vk == self.SHIFT_KEY_MASK:
+            raise ValueError(f"Unable to find virtual key for '{key}'")
+
+        return vk
 
     def get_key_name(self, virtual_key: int) -> str:
 
@@ -81,7 +81,7 @@ class WindowsKeysHandler:
 
         input = INPUT()
         input.type = self.MOUSE_INPUT
-        input.union.mi = MOUSEINPUT(
+        input.mi = MOUSEINPUT(
             dx=dx,
             dy=dy,
             mouseData=data,
@@ -93,7 +93,7 @@ class WindowsKeysHandler:
         return self.send_input(1, ctypes.byref(input), ctypes.sizeof(input))
 
     @staticmethod
-    def rising_detection(curr: bool, prev: bool, safemode: bool, safekeyispressed: bool) -> list[bool]:
+    def rising_detection(curr: bool, prev: bool, safemode: bool, safekeyispressed: bool) -> tuple[bool, bool]:
 
         if not safemode:
             return curr and not prev, curr
@@ -105,7 +105,7 @@ class WindowsKeysHandler:
 
 class ParserHandler(WindowsKeysHandler):
 
-    DEFAULT_TIMEOUT = 42.0
+    DEFAULT_CPS = 24.0
     DEFAULT_START_KEY = 'S'
     DEFAULT_PAUSE_KEY = 'P'
     DEFAULT_QUIT_KEY = 'Q'
@@ -128,15 +128,16 @@ class ParserHandler(WindowsKeysHandler):
     def _setup_args(self):
 
         ARGS=(
-            {"short": 'to', "name": 'timeout' , "type": float, "d_val": self.DEFAULT_TIMEOUT, "hint": f"Sleep time in milliseconds between clicks. Default: '{self.DEFAULT_TIMEOUT}'"},
             {"short": 'sk', "name": 'startkey', "type": str, "d_val": self.DEFAULT_START_KEY, "hint": f"Virtual key to start/resume clicking. Default: '{self.DEFAULT_START_KEY}'"},
             {"short": 'pk', "name": 'pausekey', "type": str, "d_val": self.DEFAULT_PAUSE_KEY, "hint": f"Virtual key to pause clicking. Default: '{self.DEFAULT_PAUSE_KEY}'"},
             {"short": 'qk', "name": 'quitkey' , "type": str, "d_val": self.DEFAULT_QUIT_KEY, "hint": f"Virtual key to quit the autoclicker. Default: '{self.DEFAULT_QUIT_KEY}'"},
             {"short": 'sf', "name": 'safekey' , "type": self._hexToInt, "d_val": self.DEFAULT_SAFE_KEY, "hint": f"Virtual key to use in safe mode. Default: 0x12 ({self.get_key_name(self.DEFAULT_SAFE_KEY)})"}
         )
 
-        self.parser.add_argument('--no-safemode', dest='safemode', action='store_false', help=f"Disable safe mode. Safe mode is used to prevent unintended behavior, requiring to the safe key to be held to start or quit the script")
+        self.parser.add_argument('--debug', action='store_true')
+        self.parser.add_argument('--no-safemode', dest='safemode', action='store_false', help=f"Disable safe mode. When enabled, the safe key must be held to start or quit the script to prevent unintended behavior")
         self.parser.add_argument('--allow-duplicates', dest='duplicates', action='store_true', help="Allow using the same key for multiple actions (not recommended)")
+        self.parser.add_argument('--cps', '--clicks-per-second', dest='clickspersec', type=float, default=self.DEFAULT_CPS, help=f"Target clicks per second (CPS). Default: '{self.DEFAULT_CPS}cps'")
 
         for arg in ARGS:
             self.parser.add_argument(f"-{arg['short']}", f"--{arg['name']}", type=arg['type'], default=arg['d_val'], help=arg['hint'])
@@ -170,6 +171,12 @@ class LoggingHandler(ParserHandler):
         self.log_file.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
         self.logger.addHandler(self.log_file)
 
+    def debug(self):
+        console = logging.StreamHandler(sys.stderr)
+        console.setLevel(logging.DEBUG)
+        console.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        self.logger.addHandler(console)
+
 class Autoclicker(LoggingHandler):
 
     DEBOUNCE_SLEEP_TIME = 0.069
@@ -182,7 +189,7 @@ class Autoclicker(LoggingHandler):
         self.clicking_event = threading.Event()
         self.quit_event = threading.Event()
 
-        self.timeout = 42.0
+        self.clickspersec = 42.0
         self.start_key = 0x41
         self.pause_key = 0x42
         self.quit_key = 0x43
@@ -190,19 +197,21 @@ class Autoclicker(LoggingHandler):
         self.safe_key = 0x12 # Virtual key code for generic Alt key, used for safe mode checks.
         self.start_state = self.pause_state = self.quit_state = False
 
-    def setup(self, timeout: float, start_key: int, pause_key: int, quit_key: int, safe_key: int, safemode: bool, allow_duplicate: bool = False) -> None:
+    def setup(self, clickspersec: float, start_key: int, pause_key: int, quit_key: int, safe_key: int, safemode: bool, allow_duplicate: bool = False) -> None:
 
-        self.timeout = timeout
+        self.clickspersec = clickspersec
         self.start_key = start_key
         self.pause_key = pause_key
         self.quit_key = quit_key
         self.safe_key = safe_key
         self.safe_mode = safemode
 
-        if not timeout > 0:
-            raise ValueError(f'{self.timeout} is not a valid value. Timeout must be a positive real number (unsigned float). And it is advised to be greater than 10ms')
+        if not clickspersec > 0:
+            raise ValueError(f'{self.clickspersec} is not a valid value. clicks per second must be a positive real number (unsigned float)')
 
-        if any([x for _, x in Counter([value for key, value in self.__dict__.items() if key.endswith('_key')]).items() if x != 1]) and not allow_duplicate:
+        keys = [value for key, value in self.__dict__.items() if key.endswith('_key')]
+        duplicates = any([value for _, value in Counter(keys).items() if value != 1])
+        if duplicates and not allow_duplicate:
             raise ValueError('It is not advised to use the same key for two different actions')
 
     def run(self) -> None:
@@ -211,7 +220,7 @@ class Autoclicker(LoggingHandler):
         self.click_thread.start()
 
         print(f"Safemode is enabled. Press the safe key '{self.get_key_name(self.safe_key)}' to use the start and quit keys.") if self.safe_mode else None
-        print(f"Press '{self.get_key_name(self.start_key)}' to start/resume clicking, '{self.get_key_name(self.pause_key)}' to pause, and '{self.get_key_name(self.quit_key)}' to quit.")
+        print(f"Press '{self.get_key_name(self.start_key)}' to start/resume clicking, '{self.get_key_name(self.pause_key)}' to pause, and '{self.get_key_name(self.quit_key)}' to quit. CPS: {self.clickspersec}/sec")
 
         while not self.quit_event.is_set():
             start_edge, self.start_state = self.rising_detection(self.is_key_pressed(self.start_key), self.start_state, self.safe_mode, self.is_key_pressed(self.safe_key))
@@ -237,7 +246,7 @@ class Autoclicker(LoggingHandler):
         while not self.quit_event.is_set():
             if self.clicking_event.is_set():
                 self.mouse_send_input(0, 0, 0, self.MOUSEEVENTF_LEFTDOWN | self.MOUSEEVENTF_LEFTUP, 0, 0)
-                time.sleep(0.001 * self.timeout)
+                time.sleep(1/self.clickspersec)
             else:
                 time.sleep(0.2)
 
@@ -292,8 +301,12 @@ def main() -> None:
         parser = autoclicker.get_parser()
         args = parser.parse_args()
         autoclicker.logger.info(f"Parsed arguments: {vars(args)}")
+
+        if args.debug:
+            autoclicker.debug()
+
         autoclicker.setup(
-            timeout=args.timeout,
+            clickspersec=args.clickspersec,
             start_key=autoclicker.get_virtual_key(args.startkey),
             pause_key=autoclicker.get_virtual_key(args.pausekey),
             quit_key=autoclicker.get_virtual_key(args.quitkey),
@@ -333,5 +346,5 @@ if __name__ == "__main__":
     if sys.platform != "win32":
         raise RuntimeError("This script is designed to run on Windows only!")
 
-    os.system('cls')
+    os.system('cls' if os.name == 'nt' else 'clear')
     main()
