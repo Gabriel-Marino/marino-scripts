@@ -11,6 +11,7 @@ import traceback
 import ctypes.wintypes as w
 
 from collections import Counter
+from msvcrt import kbhit, getch
 
 class MOUSEINPUT(ctypes.Structure):
 
@@ -127,6 +128,9 @@ class ParserHandler(WindowsKeysHandler):
 
     def _setup_args(self):
 
+        dev_group = self.parser.add_argument_group('Developer settings')
+        autoclicker_group = self.parser.add_argument_group('Autoclicker parameters')
+
         ARGS=(
             {"short": 'sk', "name": 'startkey', "type": str, "d_val": self.DEFAULT_START_KEY, "hint": f"Virtual key to start/resume clicking. Default: '{self.DEFAULT_START_KEY}'"},
             {"short": 'pk', "name": 'pausekey', "type": str, "d_val": self.DEFAULT_PAUSE_KEY, "hint": f"Virtual key to pause clicking. Default: '{self.DEFAULT_PAUSE_KEY}'"},
@@ -134,13 +138,13 @@ class ParserHandler(WindowsKeysHandler):
             {"short": 'sf', "name": 'safekey' , "type": self._hexToInt, "d_val": self.DEFAULT_SAFE_KEY, "hint": f"Virtual key to use in safe mode. Default: 0x12 ({self.get_key_name(self.DEFAULT_SAFE_KEY)})"}
         )
 
-        self.parser.add_argument('--debug', action='store_true')
-        self.parser.add_argument('--no-safemode', dest='safemode', action='store_false', help=f"Disable safe mode. When enabled, the safe key must be held to start or quit the script to prevent unintended behavior")
-        self.parser.add_argument('--allow-duplicates', dest='duplicates', action='store_true', help="Allow using the same key for multiple actions (not recommended)")
-        self.parser.add_argument('--cps', '--clicks-per-second', dest='clickspersec', type=float, default=self.DEFAULT_CPS, help=f"Target clicks per second (CPS). Default: '{self.DEFAULT_CPS}cps'")
+        dev_group.add_argument('--debug', action='store_true')
+        dev_group.add_argument('--no-safemode', dest='safemode', action='store_false', help=f"Disable safe mode. When enabled, the safe key must be held to start or quit the script to prevent unintended behavior")
+        dev_group.add_argument('--no-cautions', dest='cautions', action='store_false', help="Disable cautions which can lead to unintended behaviour")
 
+        autoclicker_group.add_argument('-cps', '--clicks-per-second', dest='clickspersec', type=float, default=self.DEFAULT_CPS, help=f"Target clicks per second (CPS). Default: '{self.DEFAULT_CPS}cps'")
         for arg in ARGS:
-            self.parser.add_argument(f"-{arg['short']}", f"--{arg['name']}", type=arg['type'], default=arg['d_val'], help=arg['hint'])
+            autoclicker_group.add_argument(f"-{arg['short']}", f"--{arg['name']}", type=arg['type'], default=arg['d_val'], help=arg['hint'])
 
     def get_parser(self) -> argparse.ArgumentParser:
 
@@ -197,7 +201,7 @@ class Autoclicker(LoggingHandler):
         self.safe_key = 0x12 # Virtual key code for generic Alt key, used for safe mode checks.
         self.start_state = self.pause_state = self.quit_state = False
 
-    def setup(self, clickspersec: float, start_key: int, pause_key: int, quit_key: int, safe_key: int, safemode: bool, allow_duplicate: bool = False) -> None:
+    def setup(self, clickspersec: float, start_key: int, pause_key: int, quit_key: int, safe_key: int, safemode: bool, caution_mode: bool = True) -> None:
 
         self.clickspersec = clickspersec
         self.start_key = start_key
@@ -206,17 +210,42 @@ class Autoclicker(LoggingHandler):
         self.safe_key = safe_key
         self.safe_mode = safemode
 
+        allow_duplicate = False
+        allow_cps_over_500 = False
+        if not caution_mode:
+
+            print(f"You are disabling the pre-programed cautions. The cautions are intended to prevent unintended behaviors. Press Enter to continue or {self.get_key_name(self.quit_key)} to quit")
+            while True:
+
+                if kbhit():
+
+                    try:
+                        key = getch().decode(errors='ignore').lower()
+                        if key == '\r':
+                            allow_duplicate = True
+                            allow_cps_over_500 = True
+                            return
+
+                        elif key == chr(self.quit_key).lower():
+                            self._quit()
+
+                    except Exception as e:
+                        print(f'Error: {e}')
+
         if not clickspersec > 0:
             raise ValueError(f'{self.clickspersec} is not a valid value. clicks per second must be a positive real number (unsigned float)')
 
+        if not allow_cps_over_500 and clickspersec > 500:
+            raise ValueError(f"{self.clickspersec} is too big, Python don't hand well values under 2ms inside timeout")
+
         keys = [value for key, value in self.__dict__.items() if key.endswith('_key')]
         duplicates = any([value for _, value in Counter(keys).items() if value != 1])
-        if duplicates and not allow_duplicate:
+        if not allow_duplicate and duplicates:
             raise ValueError('It is not advised to use the same key for two different actions')
 
-    def run(self) -> None:
+    def run(self, fun: callable, **fun_args) -> None:
 
-        self.click_thread = threading.Thread(target=self._click_loop)
+        self.click_thread = threading.Thread(target=self._click_loop, args=(fun, fun_args))
         self.click_thread.start()
 
         print(f"Safemode is enabled. Press the safe key '{self.get_key_name(self.safe_key)}' to use the start and quit keys.") if self.safe_mode else None
@@ -241,24 +270,24 @@ class Autoclicker(LoggingHandler):
         if self.click_thread.is_alive():
             self.click_thread.join()
 
-    def _click_loop(self) -> None:
+    def _click_loop(self, fun: callable, fun_args: dict) -> None:
 
         while not self.quit_event.is_set():
             if self.clicking_event.is_set():
-                self.mouse_send_input(0, 0, 0, self.MOUSEEVENTF_LEFTDOWN | self.MOUSEEVENTF_LEFTUP, 0, 0)
+                fun(**fun_args)
                 time.sleep(1/self.clickspersec)
             else:
                 time.sleep(0.2)
 
     def _start(self) -> None:
 
-        print("Clicking started.", end="\r")
+        print("Clicking started.", end="\r", flush=True)
         self.clicking_event.set()
         time.sleep(self.DEBOUNCE_SLEEP_TIME)
 
     def _pause(self) -> None:
 
-        print("Clicking paused.", end="\r")
+        print("Clicking paused.", end="\r", flush=True)
         self.clicking_event.clear()
         time.sleep(self.DEBOUNCE_SLEEP_TIME)
 
@@ -277,8 +306,6 @@ class Autoclicker(LoggingHandler):
         
         if self.click_thread and self.click_thread.is_alive():
             self.click_thread.join()
-
-        self.mouse_send_input(0, 0, 0, self.MOUSEEVENTF_LEFTUP, 0, 0)
 
         self.parser.exit()
 
@@ -312,9 +339,9 @@ def main() -> None:
             quit_key=autoclicker.get_virtual_key(args.quitkey),
             safe_key=args.safekey,
             safemode=args.safemode,
-            allow_duplicate=args.duplicates
+            caution_mode=args.cautions
         )
-        autoclicker.run()
+        autoclicker.run(autoclicker.mouse_send_input, dx=0, dy=0, data=0, flags=autoclicker.MOUSEEVENTF_LEFTDOWN | autoclicker.MOUSEEVENTF_LEFTUP, time=0, extra_info=0)
 
     except KeyboardInterrupt:
         print("\nInterrupted by keyboard!")
