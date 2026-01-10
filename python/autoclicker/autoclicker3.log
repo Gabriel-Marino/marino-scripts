@@ -1,0 +1,254 @@
+2025-09-08 21:42:16,011 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 24.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:42:18,249 - INFO - Resources are cleaned up.
+2025-09-08 21:42:39,919 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 24.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:42:40,120 - INFO - Resources are cleaned up.
+2025-09-08 21:42:44,258 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 24.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:42:44,460 - INFO - Resources are cleaned up.
+2025-09-08 21:43:32,414 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 24.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:43:33,419 - INFO - Resources are cleaned up.
+2025-09-08 21:48:36,819 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 24.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:48:38,226 - INFO - Resources are cleaned up.
+2025-09-08 21:48:40,737 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 24.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:48:43,947 - INFO - Resources are cleaned up.
+2025-09-08 21:48:45,844 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 24.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:48:47,514 - INFO - Resources are cleaned up.
+2025-09-08 21:48:49,908 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 24.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:48:53,319 - INFO - Resources are cleaned up.
+2025-09-08 21:50:46,001 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:50:50,417 - INFO - Resources are cleaned up.
+2025-09-08 21:50:52,655 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:50:53,323 - INFO - Resources are cleaned up.
+2025-09-08 21:50:54,799 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:50:56,005 - INFO - Resources are cleaned up.
+2025-09-08 21:50:59,081 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:50:59,928 - INFO - Interrupted by keyboard!
+2025-09-08 21:51:00,086 - INFO - Resources are cleaned up.
+2025-09-08 21:51:12,262 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:51:13,670 - INFO - Resources are cleaned up.
+2025-09-08 21:52:21,304 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:52:24,918 - INFO - Resources are cleaned up.
+2025-09-08 21:52:28,697 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:52:29,701 - INFO - Resources are cleaned up.
+2025-09-08 21:54:10,107 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:54:11,736 - INFO - Resources are cleaned up.
+2025-09-08 21:54:13,266 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:54:20,184 - INFO - Resources are cleaned up.
+2025-09-08 21:54:23,158 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:54:23,609 - INFO - Interrupted by keyboard!
+2025-09-08 21:54:23,760 - INFO - Resources are cleaned up.
+2025-09-08 21:54:25,993 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:54:26,795 - INFO - Resources are cleaned up.
+2025-09-08 21:55:36,458 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:55:37,262 - INFO - Resources are cleaned up.
+2025-09-08 21:56:27,381 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 21:56:28,655 - INFO - Resources are cleaned up.
+2025-09-08 22:07:04,175 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 22:07:05,581 - INFO - Resources are cleaned up.
+2025-09-08 22:07:06,757 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 22:07:09,012 - INFO - Resources are cleaned up.
+2025-09-08 22:12:51,784 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 22:12:59,428 - INFO - Resources are cleaned up.
+2025-09-08 22:13:02,044 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 22:13:02,564 - INFO - Interrupted by keyboard!
+2025-09-08 22:13:02,646 - INFO - Resources are cleaned up.
+2025-09-08 22:13:04,604 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 22:13:05,609 - INFO - Resources are cleaned up.
+2025-09-08 22:13:12,049 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 22:13:12,053 - ERROR - An exception occurred!
+Traceback (most recent call last):
+  File "C:\Users\Gcmar\OneDrive\햞ea de Trabalho\kartoffeln\programming\python\autoclicker\autoclicker3.py", line 424, in main
+    autoclicker.run(autoclicker.mouse_SendInput, autoclicker.MOUSEEVENTF_LEFTDOWN | autoclicker.MOUSEEVENTF_LEFTUP)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Autoclicker.run() takes 2 positional arguments but 3 were given
+2025-09-08 22:13:12,057 - INFO - Resources are cleaned up.
+2025-09-08 22:13:17,616 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 22:13:19,222 - INFO - Resources are cleaned up.
+2025-09-08 22:15:03,448 - INFO - Resources are cleaned up.
+2025-09-08 22:15:26,983 - INFO - Resources are cleaned up.
+2025-09-08 22:18:11,899 - INFO - Resources are cleaned up.
+2025-09-08 22:18:15,592 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 22:18:16,998 - INFO - Resources are cleaned up.
+2025-09-08 22:18:20,132 - INFO - Resources are cleaned up.
+2025-09-08 22:18:34,738 - INFO - Resources are cleaned up.
+2025-09-08 22:20:09,382 - INFO - Resources are cleaned up.
+2025-09-08 22:22:06,812 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 22:22:08,248 - INFO - Resources are cleaned up.
+2025-09-08 22:32:08,370 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 22:32:09,376 - INFO - Resources are cleaned up.
+2025-09-08 22:32:11,928 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 22:32:12,442 - INFO - Interrupted by keyboard!
+2025-09-08 22:32:12,531 - INFO - Resources are cleaned up.
+2025-09-08 22:32:14,105 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 22:32:18,993 - INFO - Resources are cleaned up.
+2025-09-08 23:17:49,548 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 24.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 23:17:50,352 - INFO - Resources are cleaned up.
+2025-09-08 23:17:52,225 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 24.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 23:17:53,049 - INFO - Resources are cleaned up.
+2025-09-08 23:17:54,971 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 24.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-08 23:18:00,389 - INFO - Resources are cleaned up.
+2025-09-09 01:20:45,812 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-09 03:27:57,366 - INFO - Resources are cleaned up.
+2025-09-09 12:41:38,438 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-09 13:44:41,071 - INFO - Resources are cleaned up.
+2025-09-11 02:37:39,165 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-11 03:45:25,571 - INFO - Resources are cleaned up.
+2025-09-11 10:17:10,347 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-11 14:10:53,720 - INFO - Resources are cleaned up.
+2025-09-11 18:27:19,932 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-11 18:31:45,315 - INFO - Resources are cleaned up.
+2025-09-11 18:31:50,261 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-11 18:32:57,168 - INFO - Resources are cleaned up.
+2025-09-11 18:33:08,838 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-11 18:33:29,385 - INFO - Resources are cleaned up.
+2025-09-11 18:33:34,225 - INFO - Resources are cleaned up.
+2025-09-12 09:02:03,115 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-12 09:49:16,121 - INFO - Resources are cleaned up.
+2025-09-12 22:07:48,565 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-12 22:08:15,970 - INFO - Resources are cleaned up.
+2025-09-12 22:09:33,043 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-12 22:09:41,659 - INFO - Resources are cleaned up.
+2025-09-12 22:09:45,177 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-09-13 17:23:43,869 - INFO - Resources are cleaned up.
+2025-10-17 22:55:27,135 - INFO - Resources are cleaned up.
+2025-10-17 22:55:33,254 - INFO - Resources are cleaned up.
+2025-10-17 22:55:39,978 - INFO - Resources are cleaned up.
+2025-10-17 22:55:43,423 - INFO - Resources are cleaned up.
+2025-10-17 22:55:51,127 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 501.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-10-17 22:55:51,134 - ERROR - An exception occurred!
+Traceback (most recent call last):
+  File "C:\Users\Gcmar\OneDrive\햞ea de Trabalho\kartoffeln\programming\python\autoclicker\autoclicker3.py", line 758, in main
+    autoclicker.setup(
+    ~~~~~~~~~~~~~~~~~^
+        clickspersec=args.clickspersec,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        caution_mode=args.cautions
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Gcmar\OneDrive\햞ea de Trabalho\kartoffeln\programming\python\autoclicker\autoclicker3.py", line 572, in setup
+    raise ValueError(f"{self.clickspersec} is too big, Python don't hand well values under 2ms inside timeout")
+ValueError: 42.0 is too big, Python don't hand well values under 2ms inside timeout
+2025-10-17 22:55:51,144 - INFO - Resources are cleaned up.
+2025-10-17 22:55:55,108 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-10-18 15:45:08,690 - INFO - Resources are cleaned up.
+2025-10-21 22:26:26,109 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 24.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-10-21 22:26:39,449 - INFO - Resources are cleaned up.
+2025-11-29 21:37:14,984 - INFO - Resources are cleaned up.
+2025-11-29 21:37:20,497 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 501.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-11-29 21:37:20,505 - ERROR - An exception occurred!
+Traceback (most recent call last):
+  File "C:\Users\Gcmar\OneDrive\햞ea de Trabalho\kartoffeln\programming\python\autoclicker\autoclicker3.py", line 758, in main
+    autoclicker.setup(
+    ~~~~~~~~~~~~~~~~~^
+        clickspersec=args.clickspersec,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        caution_mode=args.cautions
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Gcmar\OneDrive\햞ea de Trabalho\kartoffeln\programming\python\autoclicker\autoclicker3.py", line 572, in setup
+    raise ValueError(f"{self.clickspersec} is too big, Python don't hand well values under 2ms inside timeout")
+ValueError: 42.0 is too big, Python don't hand well values under 2ms inside timeout
+2025-11-29 21:37:20,513 - INFO - Resources are cleaned up.
+2025-11-29 21:37:28,473 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-11-30 15:56:06,429 - INFO - Resources are cleaned up.
+2025-12-06 01:01:59,012 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 24.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-12-06 01:02:02,667 - INFO - Resources are cleaned up.
+2025-12-06 01:02:08,531 - INFO - Resources are cleaned up.
+2025-12-06 01:02:15,107 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 5000.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-12-06 01:02:15,114 - ERROR - An exception occurred!
+Traceback (most recent call last):
+  File "C:\Users\Gcmar\OneDrive\햞ea de Trabalho\kartoffeln\programming\python\autoclicker\autoclicker3.py", line 758, in main
+    autoclicker.setup(
+    ~~~~~~~~~~~~~~~~~^
+        clickspersec=args.clickspersec,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        caution_mode=args.cautions
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Gcmar\OneDrive\햞ea de Trabalho\kartoffeln\programming\python\autoclicker\autoclicker3.py", line 572, in setup
+    raise ValueError(f"{self.clickspersec} is too big, Python don't hand well values under 2ms inside timeout")
+ValueError: 42.0 is too big, Python don't hand well values under 2ms inside timeout
+2025-12-06 01:02:15,124 - INFO - Resources are cleaned up.
+2025-12-06 01:02:17,766 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-12-06 16:11:23,527 - INFO - Resources are cleaned up.
+2025-12-06 20:28:34,321 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-12-06 21:27:31,919 - INFO - Resources are cleaned up.
+2025-12-06 23:08:24,265 - INFO - Resources are cleaned up.
+2025-12-06 23:08:28,736 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 501.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-12-06 23:08:28,757 - ERROR - An exception occurred!
+Traceback (most recent call last):
+  File "C:\Users\Gcmar\OneDrive\햞ea de Trabalho\kartoffeln\programming\python\autoclicker\autoclicker3.py", line 758, in main
+    autoclicker.setup(
+    ~~~~~~~~~~~~~~~~~^
+        clickspersec=args.clickspersec,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        caution_mode=args.cautions
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Gcmar\OneDrive\햞ea de Trabalho\kartoffeln\programming\python\autoclicker\autoclicker3.py", line 572, in setup
+    raise ValueError(f"{self.clickspersec} is too big, Python don't hand well values under 2ms inside timeout")
+ValueError: 42.0 is too big, Python don't hand well values under 2ms inside timeout
+2025-12-06 23:08:28,784 - INFO - Resources are cleaned up.
+2025-12-06 23:08:34,822 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-12-07 01:52:37,243 - INFO - Resources are cleaned up.
+2025-12-07 12:06:16,928 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-12-07 12:59:42,428 - INFO - Resources are cleaned up.
+2025-12-08 13:51:55,247 - INFO - Resources are cleaned up.
+2025-12-08 13:52:10,253 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 501.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-12-08 13:52:10,259 - ERROR - An exception occurred!
+Traceback (most recent call last):
+  File "C:\Users\Gcmar\OneDrive\햞ea de Trabalho\kartoffeln\programming\python\autoclicker\autoclicker3.py", line 758, in main
+    autoclicker.setup(
+    ~~~~~~~~~~~~~~~~~^
+        clickspersec=args.clickspersec,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        caution_mode=args.cautions
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Gcmar\OneDrive\햞ea de Trabalho\kartoffeln\programming\python\autoclicker\autoclicker3.py", line 572, in setup
+    raise ValueError(f"{self.clickspersec} is too big, Python don't hand well values under 2ms inside timeout")
+ValueError: 42.0 is too big, Python don't hand well values under 2ms inside timeout
+2025-12-08 13:52:10,266 - INFO - Resources are cleaned up.
+2025-12-08 13:52:12,822 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-12-08 14:04:09,824 - INFO - Resources are cleaned up.
+2025-12-19 22:19:20,550 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 501.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-12-19 22:19:20,561 - ERROR - An exception occurred!
+Traceback (most recent call last):
+  File "C:\Users\Gcmar\OneDrive\햞ea de Trabalho\kartoffeln\programming\python\autoclicker\autoclicker3.py", line 758, in main
+    autoclicker.setup(
+    ~~~~~~~~~~~~~~~~~^
+        clickspersec=args.clickspersec,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        caution_mode=args.cautions
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Gcmar\OneDrive\햞ea de Trabalho\kartoffeln\programming\python\autoclicker\autoclicker3.py", line 572, in setup
+    raise ValueError(f"{self.clickspersec} is too big, Python don't hand well values under 2ms inside timeout")
+ValueError: 42.0 is too big, Python don't hand well values under 2ms inside timeout
+2025-12-19 22:19:20,570 - INFO - Resources are cleaned up.
+2025-12-19 22:19:23,014 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-12-20 01:01:19,271 - INFO - Resources are cleaned up.
+2025-12-20 12:39:38,225 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-12-20 18:52:55,498 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-12-20 21:25:00,946 - INFO - Resources are cleaned up.
+2025-12-21 21:29:09,710 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-12-21 21:48:58,066 - INFO - Resources are cleaned up.
+2025-12-21 21:49:57,660 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-12-21 22:19:50,380 - INFO - Resources are cleaned up.
+2025-12-26 17:16:55,205 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2025-12-26 17:18:28,096 - INFO - Resources are cleaned up.
+2026-01-10 16:28:45,881 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 24.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2026-01-10 16:29:01,065 - INFO - Resources are cleaned up.
+2026-01-10 16:29:09,008 - INFO - Parsed arguments: {'debug': False, 'safemode': True, 'cautions': True, 'clickspersec': 500.0, 'startkey': 'S', 'pausekey': 'P', 'quitkey': 'Q', 'safekey': 18}
+2026-01-10 16:30:34,269 - INFO - Resources are cleaned up.

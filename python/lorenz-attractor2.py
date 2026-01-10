@@ -1,9 +1,11 @@
 import argparse
 import os
+import random
 
 import matplotlib.pyplot as plt
 import numpy as np
 
+from matplotlib.animation import FuncAnimation, writers
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.integrate import odeint
@@ -12,7 +14,7 @@ class ParserHandler:
 
     DEFAULT_INITIALSTATE = [1.0, 1.0, 1.0]
     DEFAULT_STEP_SIZE = 0.01
-    DEFAULT_TOTAL_STEPS = 3000
+    DEFAULT_TOTAL_STEPS = 5000
     DEFAULT_CMAP = 'gist_heat'
     DEFAULT_BETA=8.0/3.0
     DEFAULT_RHO=28.0
@@ -77,15 +79,22 @@ def main() -> None:
             initialState=args.initialstate
         )
 
-        states = odeint(attractor.lorenz, args.initialstate, steps)
-        points = states.reshape(-1, 1, 3)
-        segments = np. concatenate([points[:-1], points[1:]], axis=1)
+        states0 = odeint(attractor.lorenz, args.initialstate, steps)
+        states1 = odeint(attractor.lorenz, [x + random.uniform(-.5*x, .5*x) for x in args.initialstate], steps)
+        points0 = states0.reshape(-1, 1, 3)
+        points1 = states1.reshape(-1, 1, 3)
+        segments0 = np. concatenate([points0[:-1], points0[1:]], axis=1)
+        segments1 = np. concatenate([points1[:-1], points1[1:]], axis=1)
 
-        colors = np.linspace(0, 1, len(segments))
+        colors0 = np.linspace(0, 1, len(segments0))
+        colors1 = np.linspace(0, 1, len(segments1))
 
-        lc = Line3DCollection(segments, cmap=args.colormap, norm=plt.Normalize(0,1))
-        lc.set_array(colors[:-1])
-        lc.set_linewidth(2)
+        lc0 = Line3DCollection(segments0, cmap=args.colormap, norm=plt.Normalize(0,1))
+        lc1 = Line3DCollection(segments1, cmap=f"{args.colormap}_r", norm=plt.Normalize(0,1))
+        lc0.set_array(colors0[:-1])
+        lc1.set_array(colors1[:-1])
+        lc0.set_linewidth(1)
+        lc1.set_linewidth(1)
 
         fig = plt.figure()
         fig.patch.set_alpha(0.0)
@@ -93,10 +102,25 @@ def main() -> None:
         ax = fig.add_subplot(111, projection='3d')
         ax.set_axis_off()
         ax.set_facecolor((0, 0, 0, 0))
-        ax.add_collection3d(lc)
+        ax.add_collection3d(lc0)
+        ax.add_collection3d(lc1)
 
         plt.subplots_adjust(left=0, bottom=0, right=1, top=1)
-        plt.show()
+        # plt.show()
+
+        def _update(num):
+            lc0.set_segments(segments0[:num])
+            lc1.set_segments(segments1[:num])
+            lc0.set_array(colors0[:num])
+            lc1.set_array(colors1[:num])
+            print(f"{100*num/len(segments0):.2f}% ({num}/{len(segments0)})", end="\r", flush=True)
+            return lc0, lc1
+
+        MAXTIME = 69
+        NUMOFFRAMES = len(segments0)
+        MAXINTERVAL = int(1000*MAXTIME/NUMOFFRAMES)
+        anim = FuncAnimation(fig, _update, frames=NUMOFFRAMES, interval=MAXINTERVAL, blit=False)
+        anim.save(f"{os.path.basename(__file__)}"[:-2]+"mp4", writer='ffmpeg', dpi=200)
 
     except Exception as e:
         print(f"An exception occured: {e}")

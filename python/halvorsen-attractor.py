@@ -10,13 +10,11 @@ from scipy.integrate import odeint
 
 class ParserHandler:
 
-    DEFAULT_INITIALSTATE = [1.0, 1.0, 1.0]
+    DEFAULT_INITIALSTATE = [1.0, 0.0, 0.0]
     DEFAULT_STEP_SIZE = 0.01
     DEFAULT_TOTAL_STEPS = 3000
     DEFAULT_CMAP = 'gist_heat'
-    DEFAULT_BETA=8.0/3.0
-    DEFAULT_RHO=28.0
-    DEFAULT_SIGMA=10.0
+    DEFAULT_a=1.4
 
     def get_parser(self) -> argparse.ArgumentParser:
 
@@ -27,9 +25,7 @@ class ParserHandler:
             epilog=""
         )
 
-        parser.add_argument("-b", "--beta" , type=float, default=self.DEFAULT_BETA, help=f"Default: {self.DEFAULT_BETA}.")
-        parser.add_argument("-r", "--rho"  , type=float, default=self.DEFAULT_RHO, help=f"Default: {self.DEFAULT_RHO}.")
-        parser.add_argument("-s", "--sigma", type=float, default=self.DEFAULT_SIGMA, help=f"Default: {self.DEFAULT_SIGMA}.")
+        parser.add_argument("-a", "--a" , type=float, default=self.DEFAULT_a, help=f"Default: {self.DEFAULT_a}.")
         parser.add_argument("-ts", "--totalsteps", type=int, default=self.DEFAULT_TOTAL_STEPS, help=f"Default: {self.DEFAULT_TOTAL_STEPS}.")
         parser.add_argument("-ss", "--stepsize", type=float, default=self.DEFAULT_STEP_SIZE, help=f"Default: {self.DEFAULT_STEP_SIZE}.")
         parser.add_argument("-is", "--initialstate", type=float, nargs=3, default=self.DEFAULT_INITIALSTATE, help=f"Default: {self.DEFAULT_INITIALSTATE}.")
@@ -43,22 +39,19 @@ class Attractor(ParserHandler):
 
         super().__init__()
 
-        self.beta = self.DEFAULT_BETA
-        self.rho = self.DEFAULT_RHO
-        self.sigma = self.DEFAULT_SIGMA
+        self.a = self.DEFAULT_a
 
-    def setup(self, beta: float, rho: float, sigma: float, initialState: list[float]) -> None:
-        self.beta = beta
-        self.rho = rho
-        self.sigma = sigma
-        print(f"\u03B2={beta}, \u03C1={rho}, \u03C3={sigma}, {initialState}")
+    def setup(self, a: float, initialState: list[float]) -> None:
+        self.a = a
 
-    def lorenz(self, state: tuple[float, float, float], step: float) -> list[float]:
+        print(f"a={a}, {initialState}")
+
+    def halvorsen (self, state: tuple[float, float, float], step: float) -> list[float]:
         x, y, z = state
         return [
-            self.sigma * (-x + y),
-            x * (self.rho - z) - y,
-            x * y - self.beta * z
+            -self.a * x - 4*(y + z) - y*y,
+            -self.a * y - 4*(z + x) - z*z,
+            -self.a * z - 4*(x + y) - x*x
             ]
 
 def main() -> None:
@@ -71,29 +64,28 @@ def main() -> None:
         steps = np.arange(0.0, args.totalsteps*args.stepsize, args.stepsize)
 
         attractor.setup(
-            beta = args.beta,
-            rho = args.rho,
-            sigma = args.sigma,
+            a=args.a,
             initialState=args.initialstate
         )
 
-        states = odeint(attractor.lorenz, args.initialstate, steps)
-        points = states.reshape(-1, 1, 3)
-        segments = np. concatenate([points[:-1], points[1:]], axis=1)
+        states0 = odeint(attractor.halvorsen, args.initialstate, steps)
+        points0 = states0.reshape(-1, 1, 3)
+        segments0 = np. concatenate([points0[:-1], points0[1:]], axis=1)
 
-        colors = np.linspace(0, 1, len(segments))
+        colors0 = np.linspace(0, 1, len(segments0))
 
-        lc = Line3DCollection(segments, cmap=args.colormap, norm=plt.Normalize(0,1))
-        lc.set_array(colors[:-1])
-        lc.set_linewidth(2)
+        lc0 = Line3DCollection(segments0, cmap=args.colormap, norm=plt.Normalize(0,1))
+        lc0.set_array(colors0[:-1])
+        lc0.set_linewidth(2)
 
         fig = plt.figure()
         fig.patch.set_alpha(0.0)
 
         ax = fig.add_subplot(111, projection='3d')
         ax.set_axis_off()
+        ax.view_init(elev=-30, azim=-120)
         ax.set_facecolor((0, 0, 0, 0))
-        ax.add_collection3d(lc)
+        ax.add_collection3d(lc0)
 
         plt.subplots_adjust(left=0, bottom=0, right=1, top=1)
         plt.show()
